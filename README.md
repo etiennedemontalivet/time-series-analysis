@@ -4,7 +4,7 @@
 
 ### Create virtual env
 
-We recommend to create virtual env to use the framework. Please visit [this page][https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/] to do so.
+We recommend to create virtual env to use the framework. Please visit [this page](https://packaging.python.org/guides/installing-using-pip-and-virtual-environments/) to do so.
 
 ### Installing the package:
 
@@ -47,12 +47,6 @@ Linux:
 ```
 cd docs
 make html
-```
-
-Windows:
-```
-cd docs
-.\make.bat html
 ```
 
 This will build an HTML documentation inside `docs\build` directory.
