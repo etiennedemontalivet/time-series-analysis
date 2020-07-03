@@ -104,7 +104,7 @@ setup(
         'autopep8==1.5',
         'optuna==1.1.0',
         'PyAstronomy==0.14.0',
-        'jupytext==1.5.0'
+        'jupytext==1.5.0',
         'jupyterlab'
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
