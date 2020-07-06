@@ -1,5 +1,7 @@
 # AI Python Analysis
 
+A framework for time-series analysis and features extraction / visualization.
+
 ## Installation
 
 ### Create virtual env
