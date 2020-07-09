@@ -8,7 +8,7 @@ import pandas as pd
 from scipy import signal
 
 
-def powerband_single_axis(X: pd.Series, nperseg: int = 94, fs: int = 1000) -> pd.Series:
+def powerband_single_axis(X: pd.Series, nperseg: int = 16, fs: int = 1000) -> pd.Series:
     """
     Compute power band coefficients for a single Series
     """
