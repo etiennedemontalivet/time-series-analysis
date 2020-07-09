@@ -1,28 +1,20 @@
 """
-This module defines the complete Feature Extractor class that is responsible for
-feature extraction in Smart Glove project.
+This module defines the complete features extraction.
 """
-from framework.features_extraction.base import FeatureExtractor
-from framework.features_extraction.cepstrum_domain import CepstrumDomainFeatureExtractor
-from framework.features_extraction.time_domain import TimeDomainFeatureExtractor
-from framework.features_extraction.wavelets_domain import WaveletsDomainFeatureExtractor
-from framework.features_extraction.frequency_domain import (
-    FrequencyDomainFeatureExtractor,
-)
+import pandas as pd
+import numpy as np
+
+from framework.features_extraction.cepstrum_domain import extract_cepd_features
+from framework.features_extraction.time_domain import extract_td_features
+from framework.features_extraction.wavelets_domain import extract_wd_features
+from framework.features_extraction.frequency_domain import extract_fd_features
 
 
-class CompleteFeatureExtractor(FeatureExtractor):
+def extract_all_features( X: pd.DataFrame ) -> pd.DataFrame:
     """
-    Extract all features from:
-      - TimeDomainFeatureExtractor
-      - FrequencyDomainFeatureExtractor
-      - WaveletsDomainFeatureExtractor
-      - CepstrumDomainFeatureExtractor
+    A function that computes all features.
     """
-
-    funcs = (
-        TimeDomainFeatureExtractor.funcs
-        + FrequencyDomainFeatureExtractor.funcs
-        + WaveletsDomainFeatureExtractor.funcs
-        + CepstrumDomainFeatureExtractor.funcs
+    return pd.concat(
+      [ extract_td_features(X), extract_fd_features(X), extract_cepd_features(X), extract_wd_features(X) ],
+      axis=1 
     )

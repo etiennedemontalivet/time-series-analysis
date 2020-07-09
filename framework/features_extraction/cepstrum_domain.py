@@ -6,8 +6,6 @@ If we want to add a new function, we need to make sure that it handles DataFrame
 import pandas as pd
 import numpy as np
 from scipy import signal
-from framework.features_extraction.base import FeatureExtractor
-
 
 def cepstrum_coefs_single_axis(X: pd.Series, nb_coefs: int = 24) -> pd.Series:
     """
@@ -20,21 +18,22 @@ def cepstrum_coefs_single_axis(X: pd.Series, nb_coefs: int = 24) -> pd.Series:
     ceps = np.fft.ifft(np.log10(np.abs(spectrum)))
     ceps_coefs = ceps.real[:nb_coefs]
 
-    return pd.Series(ceps_coefs).add_prefix("cepstrum_").add_prefix(str(X.name) + "_")
+    return pd.Series(data=ceps_coefs, index=["ceps_"+str(i) for i in range(nb_coefs)], name=X.name)
 
 
-def cepstrum_coefs(X: pd.DataFrame, nb_coefs: int = 24, axis: int = 0) -> pd.Series:
+def cepstrum_coefs(X: pd.DataFrame, nb_coefs: int = 24, axis: int = 0) -> pd.DataFrame:
     """
     Compute N cepstrum coefficients on each column of given DataFrame.
     """
     res = X.apply(
         lambda col: cepstrum_coefs_single_axis(col, nb_coefs=nb_coefs), axis=axis
     )
-    # FIXME: This is really ugly. I didn't find a better way...
-    return res.unstack().dropna().droplevel(0)
+    return res.T
 
-
-class CepstrumDomainFeatureExtractor(FeatureExtractor):
-    funcs = [
-        cepstrum_coefs,
-    ]
+    
+def extract_cepd_features( X: pd.DataFrame ) -> pd.DataFrame:
+    """
+    A function that computes Frequency Domain features.
+    """
+    return cepstrum_coefs_df(X.T)
+    

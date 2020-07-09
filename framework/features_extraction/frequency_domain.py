@@ -3,26 +3,25 @@ All functions below are vectorized, I.E, they can be applied on a whole DataFram
 to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
 """
-from scipy import signal
 import numpy as np
 import pandas as pd
-from framework.features_extraction.base import FeatureExtractor
+from scipy import signal
 
 
-def powerband_single_axis(X: pd.Series, nperseg: int = 32, fs: int = 1000) -> pd.Series:
+def powerband_single_axis(X: pd.Series, nperseg: int = 94, fs: int = 1000) -> pd.Series:
     """
     Compute power band coefficients for a single Series
     """
     _, power_band = signal.welch(X, window="hann", nperseg=nperseg, fs=fs)
-    return pd.Series(power_band).add_prefix("powerband_").add_prefix(str(X.name) + "_")
+    return pd.Series(data=power_band, index=["powerband_"+str(i) for i in range(len(_))], name=X.name)
 
 
-def powerband(X: pd.DataFrame, axis: int = 0) -> pd.Series:
+def powerband(X: pd.DataFrame, axis: int = 0, fs=1000) -> pd.DataFrame:
     """
     Compute powerband coefficient for each column of a DataFrame and returns a Series
     """
-    res = X.apply(lambda col: powerband_single_axis(col, fs=1000), axis=axis,)
-    return res.unstack().dropna().droplevel(0)
+    res = X.apply(lambda col: powerband_single_axis(col, fs=fs), axis=axis)
+    return res.T
 
 
 def fd_max_argmax_energy_single_axis(
@@ -45,8 +44,7 @@ def fd_max_argmax_energy_single_axis(
     argmax_coef = np.argmax(mag_filtered[skip_coefs:last_coeff]) + skip_coefs
     max_coef = mag_filtered[argmax_coef]
     energy = np.sum(mag ** 2) / X.shape[0]
-    res = pd.Series({"fd_max": max_coef, "fd_argmax": argmax_coef, "fd_energy": energy})
-    return res.add_prefix(str(X.name) + "_")
+    return pd.Series({"fd_max": max_coef, "fd_argmax": argmax_coef, "fd_energy": energy}, name=X.name)     
 
 
 def fd_max_argmax_energy(
@@ -64,8 +62,17 @@ def fd_max_argmax_energy(
     res = X.apply(
         lambda col: fd_max_argmax_energy_single_axis(col, window=window), axis=axis
     )
-    return res.unstack().dropna().droplevel(0)
+    return res.T
 
 
-class FrequencyDomainFeatureExtractor(FeatureExtractor):
+def extract_fd_features( X: pd.DataFrame ) -> pd.DataFrame:
+    """
+    A function that computes Frequency Domain features.
+    """
+    # List all features extraction function
     funcs = [powerband, fd_max_argmax_energy]
+
+    out = []
+    for func in funcs:
+        out.append(func(X.T))
+    return pd.concat(out, axis=1)

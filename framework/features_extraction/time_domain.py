@@ -9,7 +9,6 @@ import scipy.signal as signal
 import scipy.stats as stats
 from PyAstronomy import pyaC
 from scipy.signal import butter, filtfilt
-from framework.features_extraction.base import FeatureExtractor
 
 
 def mean(X: pd.DataFrame) -> pd.Series:
@@ -126,11 +125,11 @@ def kurtosis(X: pd.DataFrame) -> pd.Series:
     return pd.Series(stats.kurtosis(X), index=X.columns).add_suffix("_kurtosis")
 
 
-class TimeDomainFeatureExtractor(FeatureExtractor):
+def extract_td_features(X: pd.DataFrame) -> pd.DataFrame:
     """
-    A FeatureExtractor that computes Time Domain features.
+    A function that computes Time Domain features.
     """
-
+    # List all features extraction function
     funcs = [
         mean,
         var,
@@ -148,3 +147,8 @@ class TimeDomainFeatureExtractor(FeatureExtractor):
         IQR,
         MAD
     ]
+
+    out = []
+    for func in funcs:
+        out.append(pd.Series(data=func(X.T).values, name=func.__name__, index=X.index))
+    return pd.concat(out, axis=1)

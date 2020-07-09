@@ -6,7 +6,6 @@ If we want to add a new function, we need to make sure that it handles DataFrame
 import numpy as np
 import pandas as pd
 import pywt
-from framework.features_extraction.base import FeatureExtractor
 
 
 def wavelets_features_single_axis(X: pd.Series) -> pd.Series:
@@ -59,10 +58,10 @@ def wavelets_features_single_axis(X: pd.Series) -> pd.Series:
         "CD1_db2_as": CD1_as,
     }
 
-    return pd.Series(results).add_prefix(str(X.name) + "_")
+    return pd.Series(results, name=X.name)
 
 
-def wavelets_features(X: pd.DataFrame, axis: int = 0) -> pd.Series:
+def wavelets_features(X: pd.DataFrame, axis: int = 0) -> pd.DataFrame:
     """
     Compute fequency domain features using Wavelet trasnforms.
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
@@ -73,12 +72,14 @@ def wavelets_features(X: pd.DataFrame, axis: int = 0) -> pd.Series:
     This is based on paper:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
+    X = X.T
     res = X.apply(lambda col: wavelets_features_single_axis(col), axis=axis)
     # FIXME: This is really ugly. I didn't find a better way...
-    return res.unstack().dropna().droplevel(0)
+    return res.T
 
-
-class WaveletsDomainFeatureExtractor(FeatureExtractor):
-    funcs = [
-        wavelets_features,
-    ]
+    
+def extract_wd_features( X: pd.DataFrame ) -> pd.DataFrame:
+    """
+    A function that computes Frequency Domain features.
+    """
+    return wavelets_features(X)
