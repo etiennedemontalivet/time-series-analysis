@@ -14,104 +14,37 @@
 
 # ## Objective
 
-# In this notebook we will see how to extract feature signals from files.
+# In this notebook we will see how to extract feature signals from fake data using our features extraction function.
 
 # ### Context
 
-# Let say you have 3 sensors:
-# - sensor 1: sample rate 10kHz
-# - sensor 2: sample rate 1kHz
-# - sensor 3: sample rate 1kHz
-#
-# Your file contained 100ms record. You thus have for each event 1000 values of sensor 1 and 100 values of sensor 2 and 3.
-#
-# To use the framework to extract features, we use pandas multiindex. Let see how to do it.
-
-N_S1 = 1000  # number of values per event for sensor 1
-N_S23 = 100 # number of values per event for sensor 2 and 3
+# We use fake data here. Imagine we have 2 sensors, one sampled at 1kHz and the other at 500Hz. We work on a 1 second window, thus we have labeled events with 1000 points for sensor 1 and 500 points for sensor 2. Let say we have 100 events, half of label 0 and half of label 1.
 
 # ### Load your files
-
-# You choose how to load your files, here we'll use an example and generate fake data.
 
 import pandas as pd
 import numpy as np
 
-# First we generate fake names
+Fs_s1 = 1 #kHz
+Fs_s2 = 0.5 # kHz
 
-fake_name_length = 10
-a, z = np.array(["a","z"]).view("int32") 
-filenames = np.random.randint(low=a,high=z,size=150*fake_name_length,dtype="int32").view(f"U{fake_name_length}")
+filenames = [ "file" + str(i) for i in range(100)]
 
-# We generate the samples number per event per sensor
+sensor1_df = pd.DataFrame( data=np.random.random((100,1000)), index=filenames)
 
-index_s1 = list(range(N_S1))   # we have 100 values of sensor 2 & 3 for each event 
-index_s23 = list(range(N_S23)) # we have 1000 values of sensor 1 for each event
-
-# +
-data_s1 = []          # will be the fake data of sensor 1
-data_s2 = []
-data_s3 = []
-multi_index_s1_0 = [] # will be the dimension 0 of multi-index of sensor 1
-multi_index_s1_1 = [] # will be the dimension 1 of multi-index of sensor 1
-multi_index_s23_0 = []
-multi_index_s23_1 = []
-
-for file in filenames:
-    data_s1.append(np.random.rand(N_S1)) # Put your data from sensor 1 here
-    data_s2.append(np.random.rand(N_S23))
-    data_s3.append(np.random.rand(N_S23))
-    
-    multi_index_s1_0 +=  [ file ] * N_S1
-    multi_index_s1_1 += index_s1
-    multi_index_s23_0 +=  [ file ] * N_S23
-    multi_index_s23_1 += index_s23
-# -
-
-data_s1 = np.array( data_s1 ).flatten()
-data_s2 = np.array( data_s2 ).flatten()
-data_s3 = np.array( data_s3 ).flatten()
-
-# Generate the multiindexes used for specific format
-
-# +
-multi_index_s1 = pd.MultiIndex.from_arrays([
-    np.array(multi_index_s1_0, dtype="U64"),
-    np.array(multi_index_s1_1, dtype="int32")
-], names=["filename", "index"])
-
-multi_index_s23 = pd.MultiIndex.from_arrays([
-    np.array(multi_index_s23_0, dtype="U64"),
-    np.array(multi_index_s23_1, dtype="int32")
-], names=["filename", "index"])
-# -
-
-# We can now create the multiindex dataframe that we will use to extarct features. Note that it allows to track filenames.
-
-df_s1 = pd.DataFrame(
-    data=np.stack([ data_s1 ], axis=1),
-    index=multi_index_s1,
-    columns = [
-        "sensor1"
-    ],
-    dtype="float32",
-)
-df_s23 = pd.DataFrame(
-    data=np.stack([data_s2, data_s3], axis=1),
-    index=multi_index_s23,
-    columns = [
-        "sensor2",
-        "sensor3"
-    ],
-    dtype="float32",
-)
+sensor2_df = pd.DataFrame( data=np.random.random((100,500)), index=filenames)
 
 # ### Features extraction
 
-from framework.datamodels.features import extract_features
+from framework.features_extraction import extract_all_features 
 
-features_s1 = extract_features( df=df_s1 )
-features_s23 = extract_features( df=df_s23 )
+features_s1 = extract_all_features( sensor1_df )
+features_s2 = extract_all_features( sensor2_df )
+
+# Keep a track of wich feature belongs to which sensor
+all_features = pd.concat( [ features_s1.add_prefix("s1_"), features_s2.add_prefix("s2_") ], axis=1 )
+
+all_features
 
 # ### Features dataset
 
@@ -119,24 +52,15 @@ features_s23 = extract_features( df=df_s23 )
 
 from framework.datamodels.features import FeaturesDataset
 
-y = pd.Series(data=np.concatenate([np.zeros(50), np.ones(features_s1.shape[0]-50)]), index=filenames, name="labels")
+y = pd.Series(data=np.concatenate([np.zeros(50), np.ones(all_features.shape[0]-50)]), index=filenames, name="labels")
 
-features_ds_s1  = FeaturesDataset(X=features_s1, y=y, name="sensor1")
-features_ds_s23 = FeaturesDataset(X=features_s23, y=y, name="sensor23")
-
-# ### Concatenate our features dataset 
-
-features_ds_s123 = FeaturesDataset(
-    X = pd.concat( [features_ds_s1.X, features_ds_s23.X ], axis=1),
-    y = y,
-    name="all_features"
-)
+features_ds  = FeaturesDataset(X=all_features, y=y, name="features_ds")
 
 # ### Save and load features dataset for saving time...
 
-features_ds_s123.dump("./")
+features_ds.dump("./")
 
-new_feat = FeaturesDataset.load("all_features", "./")
+new_feat = FeaturesDataset.load("features_ds", "./")
 
 # ### Plot features distribution
 
@@ -152,10 +76,11 @@ import seaborn as sns
 import matplotlib.pyplot as plt
 from scipy import stats
 
+# We can choose the column to plot to compare the distributions of each label
 iCol = 1
 
-sns.distplot(features_ds_s123.X[features_ds_s123.y == 0][ features_ds_s123.X.columns[iCol] ])
-sns.distplot(features_ds_s123.X[features_ds_s123.y == 1][ features_ds_s123.X.columns[iCol] ])
+sns.distplot(features_ds.X[features_ds.y == 0][ features_ds.X.columns[iCol] ])
+sns.distplot(features_ds.X[features_ds.y == 1][ features_ds.X.columns[iCol] ])
 
 # #### Pimp JoyPlot [WIP]
 
@@ -164,9 +89,7 @@ import pandas as pd
 from matplotlib import pyplot as plt
 from matplotlib import cm
 
-sub_features = [ x for x in features_ds_s123.X.columns if 'f' in x]
-
-X = features_ds_s123.X_scaled
+X = features_ds.X_scaled
 
 filenames_serie = pd.Series(data=filenames, name="filenames")
 
@@ -191,7 +114,7 @@ X_values_concat_1 = pd.Series(data=values_to_concat_1, name='label 1')
 filenames_concat = filenames_concat.reset_index()
 filenames_concat = filenames_concat['filenames']
 
-y_concat = pd.concat([ pd.Series(data=features_ds_s123.y, name='label') for _ in X.columns ])
+y_concat = pd.concat([ pd.Series(data=features_ds.y, name='label') for _ in X.columns ])
 y_concat = y_concat.reset_index()
 y_concat = y_concat['label']
 
