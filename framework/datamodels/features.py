@@ -7,8 +7,6 @@ from pathlib import Path
 from warnings import warn
 import pandas as pd
 from sklearn.preprocessing import StandardScaler
-from framework.features_extraction.base import FeatureExtractor
-from framework.features_extraction.extractor import CompleteFeatureExtractor
 
 
 class FeaturesDataset:
@@ -155,24 +153,3 @@ def features_concat(features: List[FeaturesDataset], name: str = None):
         y=pd.concat([feat.y for feat in features]),
         name=name_concat,
     )
-
-
-def extract_features(
-    df: pd.DataFrame,
-    extractor: FeatureExtractor = CompleteFeatureExtractor,
-    n_jobs: int = -1,
-) -> Union[FeaturesDataset, pd.DataFrame]:
-    """
-        Perform a feature extraction using given FeatureExtractor and returns a FeaturesDataset.
-
-        If n_jobs is set to -1 then this will fire as many process as cpus available.
-        Else it will fire n_jobs process to extract features.
-        """
-    if n_jobs == -1:
-        n_jobs = os.cpu_count()
-    _df = df.copy()
-    feature_extractor = extractor()
-    # Extract features
-    _features = feature_extractor.transform(_df, n_jobs=n_jobs)
-
-    return _features
