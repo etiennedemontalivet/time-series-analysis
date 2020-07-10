@@ -38,8 +38,8 @@ sensor2_df = pd.DataFrame( data=np.random.random((100,500)), index=filenames)
 
 from framework.features_extraction import extract_all_features 
 
-features_s1 = extract_all_features( sensor1_df )
-features_s2 = extract_all_features( sensor2_df )
+features_s1 = extract_all_features( sensor1_df, fs=1000 )
+features_s2 = extract_all_features( sensor2_df, fs=500 )
 
 # Keep a track of wich feature belongs to which sensor
 all_features = pd.concat( [ features_s1.add_prefix("s1_"), features_s2.add_prefix("s2_") ], axis=1 )

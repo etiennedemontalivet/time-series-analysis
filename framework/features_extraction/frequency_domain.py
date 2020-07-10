@@ -8,24 +8,49 @@ import pandas as pd
 from scipy import signal
 
 
-def powerband_single_axis(X: pd.Series, nperseg: int = 16, fs: int = 1000) -> pd.Series:
+def powerband_single_axis(
+    X: pd.Series,
+    fs: int = 1000,
+    n_powerband_bins: int = 10,
+    powerband_explicit_freq_names: bool=True
+) -> pd.Series:
     """
-    Compute power band coefficients for a single Series
+    Compute power band coefficients of a single Series
     """
-    _, power_band = signal.welch(X, window="hann", nperseg=nperseg, fs=fs)
-    return pd.Series(data=power_band, index=["powerband_"+str(i) for i in range(len(_))], name=X.name)
+    nperseg = 2 *  ( n_powerband_bins - 1 )
+    f, power_band = signal.welch(X, window="hann", nperseg=nperseg, fs=fs)
+    if powerband_explicit_freq_names:
+        freq_bins = [ str(int(f[i])) for i in range(n_powerband_bins) ]
+    else:
+        freq_bins = [ str(i) for i in range(n_powerband_bins)]
+    return pd.Series(data=power_band, index=["powerband_"+freq_bins[i] for i in range(len(f))], name=X.name)
 
 
-def powerband(X: pd.DataFrame, axis: int = 0, fs=1000) -> pd.DataFrame:
+def powerband(
+    X: pd.DataFrame, 
+    fs=1000,
+    n_powerband_bins: int=10,
+    powerband_explicit_freq_names: bool=True
+) -> pd.DataFrame:
     """
     Compute powerband coefficient for each column of a DataFrame and returns a Series
     """
-    res = X.apply(lambda col: powerband_single_axis(col, fs=fs), axis=axis)
+    res = X.apply(
+        lambda col: powerband_single_axis(
+            col,
+            fs=fs,
+            n_powerband_bins=n_powerband_bins,
+            powerband_explicit_freq_names=powerband_explicit_freq_names
+        ), 
+        axis=0)
     return res.T
 
 
 def fd_max_argmax_energy_single_axis(
-    X: pd.Series, window: str = "hann", skip_coefs: int = 10, last_coeff: int = 1000
+    X: pd.Series,
+    window: str = "hann",
+    skip_coefs: int = 10,
+    last_coeff: int = 1000
 ) -> pd.Series:
     """
     Compute FFT after applying window on single series and return a series holding:
@@ -65,14 +90,24 @@ def fd_max_argmax_energy(
     return res.T
 
 
-def extract_fd_features( X: pd.DataFrame ) -> pd.DataFrame:
+def extract_fd_features( 
+    X: pd.DataFrame,
+    fs: int,
+    n_powerband_bins: int = 10,
+    powerband_explicit_freq_names: bool = True
+    ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.
     """
-    # List all features extraction function
-    funcs = [powerband, fd_max_argmax_energy]
-
-    out = []
-    for func in funcs:
-        out.append(func(X.T))
-    return pd.concat(out, axis=1)
+    return pd.concat(
+        [ 
+            powerband(
+                X=X.T,
+                fs=fs, 
+                n_powerband_bins=n_powerband_bins,
+                powerband_explicit_freq_names=powerband_explicit_freq_names
+            ),
+            fd_max_argmax_energy(
+                X=X.T)
+        ],
+        axis=1)
