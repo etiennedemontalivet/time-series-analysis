@@ -5,10 +5,12 @@ If we want to add a new function, we need to make sure that it handles DataFrame
 """
 import numpy as np
 import pandas as pd
+from scipy import signal
 import pywt
+from typing import List
 
 
-def wavelets_features_single_axis(X: pd.Series) -> pd.Series:
+def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     """
     Compute fequency domain features using Wavelet trasnforms.
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
@@ -61,7 +63,7 @@ def wavelets_features_single_axis(X: pd.Series) -> pd.Series:
     return pd.Series(results, name=X.name)
 
 
-def wavelets_features(X: pd.DataFrame, axis: int = 0) -> pd.DataFrame:
+def wavelets_acc_coeffs(X: pd.DataFrame) -> pd.DataFrame:
     """
     Compute fequency domain features using Wavelet trasnforms.
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
@@ -73,13 +75,130 @@ def wavelets_features(X: pd.DataFrame, axis: int = 0) -> pd.DataFrame:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
     X = X.T
-    res = X.apply(lambda col: wavelets_features_single_axis(col), axis=axis)
-    # FIXME: This is really ugly. I didn't find a better way...
+    res = X.apply(lambda col: wavelets_acc_coeffs_single_axis(col), axis=0)
+    return res.T
+
+
+def wavelets_bands_single_axis(
+    X: pd.Series,
+    n_wavelet_bins: int=10,
+    wavelet_band_cover_ratio: float = 0.5,
+    wavelet_types: List[str]=["db2", "db3"],
+    wavelet_dec_level: List[int]=[5, 5],
+) -> pd.Series:
+    """
+    A function that computes the wavelets power bands on a time serie
+
+    Parameters
+    ----------
+    X : pd.Series
+        The time serie to extract wavelet power bands from.
+    n_wavelet_bins : int, optional
+        Number of wavelets power bands to extract. The default is 10.
+    wavelet_band_cover_ratio : float, optional
+        The cover ration between bands. The default is 0.5.
+    wavelet_types : List[str], optional
+        Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
+    wavelet_dec_level : List[int], optional
+        Decomposition level. The default is [5, 5].
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe of shape (1, n_wavelet_bins * size(wavelet_types)) 
+        containing the wavelet power bands.
+
+    """
+    wav_bands = []
+    
+    for wave_type, level in zip( wavelet_types, wavelet_dec_level ):
+        wav_band_data = []
+        wavelet_res = np.concatenate( pywt.wavedec(X, wave_type, level=level) )
+        n_samples_per_win = int( ( 1+wavelet_band_cover_ratio ) * len( wavelet_res ) / n_wavelet_bins )
+        step_size = int( len( wavelet_res ) / n_wavelet_bins )
+
+        for i in range( n_wavelet_bins - 1 ):
+            sub_x = wavelet_res[i*step_size:(i*step_size+n_samples_per_win)]
+            sub_x_windowed = signal.get_window("hann", len(sub_x)) * sub_x
+            wav_band_data.append( np.sum( sub_x_windowed ** 2) / len(sub_x) )
+        sub_x = wavelet_res[(n_wavelet_bins - 1)*step_size:]
+        sub_x_windowed = signal.get_window("hann", len(sub_x)) * sub_x
+        wav_band_data.append( np.sum( sub_x_windowed ** 2) / len(sub_x) )
+        
+        wav_bands.append( pd.Series(
+            data=wav_band_data, 
+            index=[(wave_type + "-l" + str(level)+ "-b" + str(i)) for i in range(n_wavelet_bins) ],
+            name=X.name
+            )
+        )
+
+    return pd.concat(wav_bands, axis=0).rename(X.name)
+
+
+def wavelets_bands(
+    X: pd.DataFrame,
+    n_wavelet_bins: int=10,
+    wavelet_band_cover_ratio: float = 0.5,
+    wavelet_types: List[str]=["db2", "db3"],
+    wavelet_dec_level: List[int]=[5, 5]
+) -> pd.DataFrame:
+    """
+    A function that computes the wavelets power bands on a time series dataframe.
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Dataframe of shape (n_samples, n_times).
+    n_wavelet_bins : int, optional
+        Number of wavelets power bands to extract. The default is 10.
+    wavelet_band_cover_ratio : float, optional
+        The cover ration between bands. The default is 0.5.
+    wavelet_types : List[str], optional
+        Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
+    wavelet_dec_level : List[int], optional
+        Decomposition level. The default is [5, 5].
+
+    Returns
+    -------
+    pd.DataFrame
+        Dataframe of shape (n_samples, n_wavelet_bins * size(wavelet_types)) 
+        containing the wavelet power bands.
+
+    """
+    X = X.T
+    res = X.apply( lambda col: 
+        wavelets_bands_single_axis(
+            col,
+            n_wavelet_bins=n_wavelet_bins,
+            wavelet_band_cover_ratio=wavelet_band_cover_ratio,
+            wavelet_types=wavelet_types,
+            wavelet_dec_level=wavelet_dec_level
+        ), 
+        axis=0
+    )
     return res.T
 
     
-def extract_wd_features( X: pd.DataFrame ) -> pd.DataFrame:
+def extract_wd_features(
+    X: pd.DataFrame,
+    n_wavelet_bins: int=10,
+    wavelet_band_cover_ratio: float = 0.5,
+    wavelet_types: List[str]=["db2", "db3"],
+    wavelet_dec_level: List[int]=[5, 5]
+) -> pd.DataFrame:
     """
-    A function that computes Frequency Domain features.
+    A function that computes Wavelets Domain features.
     """
-    return wavelets_features(X)
+    return pd.concat( 
+        [
+            wavelets_acc_coeffs(X),
+            wavelets_bands(
+                X=X,
+                n_wavelet_bins=n_wavelet_bins,
+                wavelet_band_cover_ratio=wavelet_band_cover_ratio,
+                wavelet_types=wavelet_types,
+                wavelet_dec_level=wavelet_dec_level
+            )
+        ],
+        axis=1
+    )

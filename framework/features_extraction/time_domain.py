@@ -53,16 +53,6 @@ def minimum(X: pd.DataFrame) -> pd.Series:
     return X.min().add_suffix("_min")
 
 
-def power(X: pd.DataFrame, window: str = "hann", axis: int = 0) -> pd.Series:
-    """
-    Compute power for each column of given DataFrame by default and return a Series
-    """
-    res = X.apply(
-        lambda col: np.mean(signal.periodogram(col, window=window)[1]), axis=axis
-    )
-    return res.add_suffix("_power")
-
-
 def RMS(X: pd.DataFrame) -> pd.Series:
     """
     Compute Root Mean Square for each column of given DataFrame and return a Series
@@ -140,7 +130,6 @@ def extract_td_features(X: pd.DataFrame) -> pd.DataFrame:
         RMS,
         argmax,
         argmin,
-        power,
         energy,
         skewness,
         kurtosis,

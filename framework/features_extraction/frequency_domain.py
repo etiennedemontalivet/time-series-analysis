@@ -6,7 +6,7 @@ If we want to add a new function, we need to make sure that it handles DataFrame
 import numpy as np
 import pandas as pd
 from scipy import signal
-
+from typing import Callable
 
 def powerband_single_axis(
     X: pd.Series,
@@ -49,22 +49,29 @@ def powerband(
 def fd_max_argmax_energy_single_axis(
     X: pd.Series,
     window: str = "hann",
-    skip_coefs: int = 10,
-    last_coeff: int = 1000
+    skip_coefs: int = 0,
+    last_coeff: int = None,
+    filtering_func: Callable = None
 ) -> pd.Series:
     """
     Compute FFT after applying window on single series and return a series holding:
       - maximum fourier transform coefficient on magnitude
       - position of maximum fourier transform coefficient
     """
+    if last_coeff is None:
+        last_coeff = X.shape[0] - 1
+
     win = signal.get_window(window, X.shape[0])
     w_sig = np.multiply(X, win)
     spectrum = np.fft.rfft(w_sig)
     mag = np.abs(spectrum)
 
-    # Low pass filter on mag
-    b, a = signal.butter(3, 0.1)
-    mag_filtered = signal.filtfilt(b, a, mag)
+    # Apply filtering on magnitude ?
+    # ex: signal.filtfilt(b, a, mag)
+    if filtering_func is None:
+        mag_filtered = mag
+    else:
+        mag_filtered = filtering_func(mag)
 
     argmax_coef = np.argmax(mag_filtered[skip_coefs:last_coeff]) + skip_coefs
     max_coef = mag_filtered[argmax_coef]
@@ -73,8 +80,12 @@ def fd_max_argmax_energy_single_axis(
 
 
 def fd_max_argmax_energy(
-    X: pd.DataFrame, window: str = "hann", axis: int = 0
-) -> pd.Series:
+    X: pd.DataFrame,
+    window: str = "hann",
+    skip_coefs: int = 0,
+    last_coeff: int = None,
+    filtering_func: Callable = None
+) -> pd.DataFrame:
     """
     Extract following information:
 
@@ -85,7 +96,14 @@ def fd_max_argmax_energy(
     for each column of given DataFrame and returns a Series
     """
     res = X.apply(
-        lambda col: fd_max_argmax_energy_single_axis(col, window=window), axis=axis
+        lambda col: fd_max_argmax_energy_single_axis(
+            col,
+            window=window,
+            skip_coefs=skip_coefs,
+            last_coeff=last_coeff,
+            filtering_func=filtering_func
+        ), 
+        axis=0
     )
     return res.T
 
@@ -94,7 +112,11 @@ def extract_fd_features(
     X: pd.DataFrame,
     fs: int,
     n_powerband_bins: int = 10,
-    powerband_explicit_freq_names: bool = True
+    powerband_explicit_freq_names: bool = True,
+    fft_window: str = "hann",
+    fft_max_argmax_skip_coeffs: int = 0,
+    fft_max_argmax_last_coeffs: int = None,
+    fft_filtering_func: Callable = None
     ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.
@@ -108,6 +130,11 @@ def extract_fd_features(
                 powerband_explicit_freq_names=powerband_explicit_freq_names
             ),
             fd_max_argmax_energy(
-                X=X.T)
+                X=X.T,
+                window=fft_window,
+                skip_coefs=fft_max_argmax_skip_coeffs,
+                last_coeff=fft_max_argmax_last_coeffs,
+                filtering_func=fft_filtering_func
+            )
         ],
         axis=1)
