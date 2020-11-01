@@ -36,7 +36,7 @@ sensor2_df = pd.DataFrame( data=np.random.random((100,500)), index=filenames)
 
 # ### Features extraction
 
-from framework.features_extraction import extract_all_features 
+from tsanalysis.features_extraction import extract_all_features 
 
 features_s1 = extract_all_features( sensor1_df, fs=1000 )
 features_s2 = extract_all_features( sensor2_df, fs=500 )
@@ -50,7 +50,7 @@ all_features
 
 # Now if we want to analyse these features, we could used the `FeaturesDataset` class to play with it. Let generate some fake labels for our features.
 
-from framework.datamodels.features import FeaturesDataset
+from tsanalysis.datamodels.features import FeaturesDataset
 
 y = pd.Series(data=np.concatenate([np.zeros(50), np.ones(all_features.shape[0]-50)]), index=filenames, name="labels")
 
