@@ -95,6 +95,10 @@ class ClassificationResults:
         None.
 
         """
+        if not isinstance( y_pred, pd.Series ):
+            raise ValueError("y_pred has to be a pd.Series. Please convert it.")
+        if not isinstance( y_true, pd.Series ):
+            raise ValueError("y_true has to be a pd.Series. Please convert it.")
         self.y_pred = y_pred
         self.y_true = y_true
         
@@ -104,7 +108,8 @@ class ClassificationResults:
         else:
             matthews_corr_coef = 0
             
-        self.n_classes_ = len(np.unique(self.y_true))
+        self.classes_ = np.unique(self.y_true)
+        self.n_classes_ = len(self.classes_)
 
         # Store it if it is defined, else store 0
         self.matthews_corrcoef_ = matthews_corr_coef if matthews_corr_coef else 0
@@ -149,13 +154,8 @@ class ClassificationResults:
         """
         Returns the index of misclassified 
         """
-        if isinstance( self.y_true, pd.Series ):
-            y_misclassified = self.y_true[self.y_true != self.y_pred]
-            misclassified = y_misclassified.index
-        else:
-            misclassified = np.where( self.y_true != self.y_pred )[0]
-
-        return misclassified
+        y_misclassified = self.y_true[self.y_true != self.y_pred]
+        return y_misclassified.index
     
     def plot_confusion_matrix(
         self,
@@ -238,3 +238,241 @@ class ClassificationResults:
         data["predictions"] = {"y_true": self.y_true, "y_pred": self.y_pred}
         data["misclassifications"] = self.misclassified
         return data
+    
+
+class CrossValidationResults:
+    """
+    This class should be used in conjunction with ClassificationResults whenever
+    cross-validations are performed.
+    """
+
+    def __init__(
+        self, results: List[ClassificationResults], select_by="matthews_corrcoef"
+    ):
+        """
+        Return a new instance of CrossValidationdf based on a given list of results.
+        select_by can take on the following values:
+          - matthews_corrcoef
+          - accuracy
+          - f1
+        aggregator must be a callable that can aggregate the dataframe of df into a series of values 
+        """
+        self.history = results
+        metrics, misclassified = zip(
+            *[(res.metrics, res.misclassified) for res in results]
+        )
+        self.df = pd.DataFrame(metrics)
+        self.__misclassified__ = pd.Series(misclassified)
+        self.sorted_df = self.df.sort_values(by=select_by, ascending=False, axis=0)
+        self.select_by = select_by
+        self._mean = self.df.mean()
+        
+        # Compute mean of confusion matrices
+        cm_sum = self.history[0].confusion_matrix_ * 0
+        for res in self.history:
+            cm_sum += res.confusion_matrix_
+        self.confusion_matrix_mean = cm_sum/len(self.history)
+
+    @property
+    def misclassified(self) -> pd.Series:
+        """
+        Return a Series with filename as index and count of misclassification as value for each event
+        """
+        values = pd.Series(np.concatenate(self.__misclassified__)).value_counts()
+        values.name = "count_misclassified"
+        
+        all_true = pd.concat([x.y_true for x in self.history])
+        all_pred = pd.concat([x.y_pred for x in self.history])
+
+        # remove duplicated indexes from true values
+        all_true = all_true.loc[~all_true.index.duplicated(keep='first')]
+        
+        true_targets = pd.Series(
+            [(all_true.loc[idx]) for idx in values.index],
+            name="true_target",
+            index= values.index
+        )
+        
+        predicted_targets = pd.Series(
+            [(np.unique(all_pred.loc[idx]))[ (np.unique(all_pred.loc[idx])) != (all_true.loc[idx]) ] 
+             for idx in values.index],
+            name="predicted_target",
+            index= values.index
+        )
+        
+        percentage_error = (values / self.df.shape[0] * 100).rename("percentage_misclassified")
+        print("Note: percentage_error is per split. Multiply it by n_split to have the full percentage.")
+        return pd.DataFrame([values, percentage_error, true_targets, predicted_targets]).T
+        
+
+    @property
+    def score(self) -> float:
+        """
+        Return a score for optimization.
+        By default, it is equal to `1 - mean(matthews_corr_coef)`
+        You can specify the score function when creating a new object.
+        """
+        return 1 - self._mean[self.select_by]
+
+    @property
+    def mean(self) -> pd.Series:
+        """
+        Return a series containing the mean values of each metric
+        """
+        series = self._mean.copy()
+        series = series.add_prefix("mean_")
+        return series
+
+    @property
+    def median(self) -> pd.Series:
+        """
+        Return a series containing the median values for each metric
+        See `percentile()` method.
+        """
+        return self.percentile(0.5)
+
+    @property
+    def p95(self) -> pd.Series:
+        """
+        Return a series containing the values of 0.95 percentile for each metric
+        See `percentile()` method.
+        """
+        return self.percentile(0.95)
+    
+    @property
+    def p05(self) -> pd.Series:
+        """
+        Return a series containing the values of 0.05 percentile for each metric
+        See `percentile()` method.
+        """
+        return self.percentile(0.05)
+
+    def percentile(self, p: float) -> pd.Series:
+        """
+        Return a series containing the values of p-percentile for each metric.
+        """
+        series = self.df.quantile(p)
+        series.index = series.index.map(lambda x: "p%02d_" % (p * 100) + x)
+        return series
+
+    @property
+    def metrics(self):
+        """
+        Return aggregated metrics
+        """
+        _metrics = {}
+        _metrics.update(self.mean)
+        _metrics.update(self.p05)
+        _metrics.update(self.p95)
+        _metrics.update({"score": self.score})
+        return _metrics
+
+    def log_aggregated_metrics(self):
+        """
+        Log aggregated metrics for the cross validation using mlflow
+        """
+        mlflow.log_metrics(self.metrics)
+
+    def log_raw_metrics(self):
+        """
+        Log each raw metric step by step using mlflow
+        """
+        self.df.apply(
+            lambda col: [(col.name, col.iloc[idx], idx) for idx in range(col.shape[0])],
+            axis=0,
+        ).applymap(lambda args: mlflow.log_metric(*args))
+
+    def log_metrics(self):
+        """
+        Log all metrics using mlflow
+        """
+        self.log_aggregated_metrics()
+        self.log_raw_metrics()
+
+    def _repr_html_(self):
+        return self.df._repr_html_()      
+    
+    def plot_confusion_matrix_mean(
+        self,
+        labels_names: list=None,
+        title: str='Confusion matrices mean',
+        cmap: str=None,
+        cbar: bool=True):
+        """
+        Plot the confusion matrices mean
+
+        Parameters
+        ----------
+        labels_names : list, optional
+            The names of the labels. The default is None.
+        title : str, optional
+            Figure's title. The default is 'Confusion matrix'.
+        cmap : str, optional
+            cmap to use. If None, 'Blues' is used. The default is None.
+        cbar : bool, optional
+            If True, it plots the colorbar too. The default is True.
+
+        Returns
+        -------
+        None.
+
+        """
+        
+        cm = self.confusion_matrix_mean
+        
+        if labels_names is None:
+            labels_names = np.unique(np.concatenate([x.y_true for x in self.history])).tolist()
+        
+        if cmap is None:
+            cmap = plt.get_cmap('Blues')
+    
+        raw_cm = cm
+        cm = 100*cm.astype('float') / cm.sum(axis=1)[:, np.newaxis]
+            
+        plt.figure(figsize=(8, 6))
+        plt.imshow(cm, interpolation='nearest', cmap=cmap, vmin=0, vmax=100)
+        plt.title(title)
+        if cbar:
+            plt.colorbar()
+    
+        if labels_names is not None:
+            tick_marks = np.arange(len(labels_names))
+            plt.xticks(tick_marks, labels_names, rotation=45)
+            plt.yticks(tick_marks, labels_names)
+    
+    
+        thresh = cm.max() / 1.5
+        for i, j in itertools.product(range(cm.shape[0]), range(cm.shape[1])):
+            plt.text(j, i, "{:0.2f}%\n({:0.2f}/{:0.2f})".format(cm[i, j], raw_cm[i,j], np.sum(raw_cm[i,:])),
+                         horizontalalignment="center",
+                         color="white" if cm[i, j] > thresh else "black")
+    
+    
+        plt.tight_layout()
+        plt.ylabel('True label')
+        plt.xlabel('Predicted label\nf1_weighted={:0.2f}; mcc={:0.2f}'.format(self.mean["mean_f1_weighted"],self.mean["mean_matthews_corrcoef"]))
+        plt.show()
+
+    def plot_metrics(self, figtitle="Classification metrics"):
+        """
+        Plot metrics as linechart using matplotlib
+        """
+        fig = plt.figure()
+        fig.suptitle(figtitle)
+        self.df[["accuracy", "matthews_corrcoef", "f1_weighted"]].plot()
+
+    def plot_tp(self, figtitle="Classification success"):
+        """
+        Plot True Positive counts as linechart using matplotlib
+        """
+        fig = plt.figure()
+        fig.suptitle(figtitle)
+        self.df[["tp"]].plot()
+
+    def plot_std(self, figtitle="Metrics Standard deviations"):
+        """
+        Plot standard deviation of all metrics as barplot using matplotlib
+        """
+        fig = plt.figure()
+        fig.suptitle(figtitle)
+        self.df.std().plot.bar(rot=30)

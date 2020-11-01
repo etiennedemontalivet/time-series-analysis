@@ -56,7 +56,7 @@ clf.fit(X,y)
 
 y_pred = clf.predict(X)
 
-res = ClassificationResults(y_true=y, y_pred=y_pred)
+res = ClassificationResults(y_true=pd.Series(y), y_pred=pd.Series(y_pred))
 
 res.plot_confusion_matrix(data_iris.target_names)
 
@@ -72,7 +72,7 @@ clf.fit(X_df,y_df)
 
 y_pred = clf.predict(X)
 
-res = ClassificationResults(y_true=y_df, y_pred=y_pred)
+res = ClassificationResults(y_true=y_df, y_pred=pd.Series(data=y_pred, index=y_df.index))
 
 res.plot_confusion_matrix(data_iris.target_names)
 
@@ -108,7 +108,7 @@ clf.fit(X,y)
 
 y_pred = clf.predict(X)
 
-res = ClassificationResults(y_true=y, y_pred=y_pred)
+res = ClassificationResults(y_true=pd.Series(y), y_pred=pd.Series(y_pred))
 
 res.plot_confusion_matrix(['malignant', 'benign'])
 
@@ -124,7 +124,7 @@ clf.fit(X_df,y_df)
 
 y_pred = clf.predict(X)
 
-res = ClassificationResults(y_true=y_df, y_pred=y_pred)
+res = ClassificationResults(y_true=y_df, y_pred=pd.Series(data=y_pred,index=y_df.index))
 
 res.plot_confusion_matrix(['malignant', 'benign'])
 
