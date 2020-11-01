@@ -1,7 +1,6 @@
 """
-All functions below are vectorized, I.E, they can be applied on a whole DataFrame without having to apply
-to each column manually.
-If we want to add a new function, we need to make sure that it handles DataFrames!
+Frequency domain features module
+
 """
 import numpy as np
 import pandas as pd
@@ -15,7 +14,26 @@ def powerband_single_axis(
     powerband_explicit_freq_names: bool=True
 ) -> pd.Series:
     """
-    Compute power band coefficients of a single Series
+    Compute power band coefficients of a single Series using Welch method.
+    See https://en.wikipedia.org/wiki/Welch%27s_method
+ 
+    Parameters
+    ----------
+    X : pd.Series
+        Signal to extract the powerbands from.
+    fs : int, optional
+        Sample rate in Hz. The default is 1000.
+    n_powerband_bins : int, optional
+        Number of powerbands to compute. The default is 10.
+    powerband_explicit_freq_names : bool, optional
+        If True, the frequency bands are included in the feature name, else
+        a counter is used. The default is True.
+
+    Returns
+    -------
+    pd.Series
+        The powerbands features values.
+
     """
     nperseg = 2 *  ( n_powerband_bins - 1 )
     f, power_band = signal.welch(X, window="hann", nperseg=nperseg, fs=fs)
@@ -33,7 +51,26 @@ def powerband(
     powerband_explicit_freq_names: bool=True
 ) -> pd.DataFrame:
     """
-    Compute powerband coefficient for each column of a DataFrame and returns a Series
+    Compute power band coefficients of a DataFrame using Welch method.
+    See https://en.wikipedia.org/wiki/Welch%27s_method
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Input containing the time series. Shape has to be (n_signals, time)
+    fs : int, optional
+        Sample rate in Hz. The default is 1000.
+    n_powerband_bins : int, optional
+        Number of powerbands to compute. The default is 10.
+    powerband_explicit_freq_names : bool, optional
+        If True, the frequency bands are included in the feature name, else
+        a counter is used. The default is True.
+
+    Returns
+    -------
+    pd.Series
+        The powerbands features values.
+
     """
     res = X.apply(
         lambda col: powerband_single_axis(
@@ -49,14 +86,39 @@ def powerband(
 def fd_max_argmax_energy_single_axis(
     X: pd.Series,
     window: str = "hann",
-    skip_coefs: int = 0,
+    skip_coefs: int = 1,
     last_coeff: int = None,
     filtering_func: Callable = None
 ) -> pd.Series:
     """
-    Compute FFT after applying window on single series and return a series holding:
-      - maximum fourier transform coefficient on magnitude
-      - position of maximum fourier transform coefficient
+    Compute the energy, the max and argmax of the magnitude of the fourier 
+    transform of the time series.
+
+    Parameters
+    ----------
+    X : pd.Series
+        Signal to extract the features from.
+    window : str, optional
+        The type of window to use for windowing. The default is "hann".
+    skip_coefs : int, optional
+        Number of coefficient to skip for the max/argmax computation. The default is 1.
+    last_coeff : int, optional
+        The last fft coeff to take into account for the the max/argmax computation.
+        If None, no part of the magnitude is removed from the end.
+        The default is None.
+    filtering_func : Callable, optional
+        A filter on the magnitude could be applied before max/argmax computation.
+        The default is None.
+        
+    Note
+    ----
+    Filtering, skip_coefs and last_coeff are NOT used for energy computation.
+
+    Returns
+    -------
+    pd.Series
+        Series containing max, argmax and energy of the time serie.
+
     """
     if last_coeff is None:
         last_coeff = X.shape[0] - 1
@@ -82,18 +144,39 @@ def fd_max_argmax_energy_single_axis(
 def fd_max_argmax_energy(
     X: pd.DataFrame,
     window: str = "hann",
-    skip_coefs: int = 0,
+    skip_coefs: int = 1,
     last_coeff: int = None,
     filtering_func: Callable = None
 ) -> pd.DataFrame:
     """
-    Extract following information:
+    Compute the energy, the max and argmax of the magnitude of the fourier 
+    transform of the time series.
 
-      - real value of maximum fourier transform coefficient
-      - position of maximum fourier transform coefficient
-      - energy of spectrum
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Input containing the time series. Shape has to be (n_signals, time)
+    window : str, optional
+        The type of window to use for windowing. The default is "hann".
+    skip_coefs : int, optional
+        Number of coefficient to skip for the max/argmax computation. The default is 1.
+    last_coeff : int, optional
+        The last fft coeff to take into account for the the max/argmax computation.
+        If None, no part of the magnitude is removed from the end.
+        The default is None.
+    filtering_func : Callable, optional
+        A filter on the magnitude could be applied before max/argmax computation.
+        The default is None.
+        
+    Note
+    ----
+    Filtering, skip_coefs and last_coeff are NOT used for energy computation.
 
-    for each column of given DataFrame and returns a Series
+    Returns
+    -------
+    pd.Series
+        Series containing max, argmax and energy of the time serie.
+
     """
     res = X.apply(
         lambda col: fd_max_argmax_energy_single_axis(
@@ -114,12 +197,41 @@ def extract_fd_features(
     n_powerband_bins: int = 10,
     powerband_explicit_freq_names: bool = True,
     fft_window: str = "hann",
-    fft_max_argmax_skip_coeffs: int = 0,
+    fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
     fft_filtering_func: Callable = None
     ) -> pd.DataFrame:
     """
-    A function that computes Frequency Domain features.
+    A function that computes Frequency Domain features.    
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Input containing the time series. Shape has to be (n_signals, time)
+    fs : int
+        Sample rate in Hz.
+    n_powerband_bins : int, optional
+        Number of powerbands to compute. The default is 10.
+    powerband_explicit_freq_names : bool, optional
+        If True, the frequency bands are included in the feature name, else
+        a counter is used. The default is True.
+    fft_window : str, optional
+        The type of window to use for windowing. The default is "hann".
+    fft_max_argmax_skip_coeffs : int, optional
+        Number of coefficients to skip for the max/argmax computation. The default is 1.
+    fft_max_argmax_last_coeffs : int, optional
+        The last fft coeff to take into account for the the max/argmax computation.
+        If None, no part of the magnitude is removed from the end.
+        The default is None.
+    fft_filtering_func : Callable, optional
+        A filter on the magnitude could be applied before max/argmax computation.
+        The default is None.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the frequency features per time serie.
+
     """
     return pd.concat(
         [ 

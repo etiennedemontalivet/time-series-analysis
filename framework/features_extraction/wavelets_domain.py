@@ -10,7 +10,9 @@ import pywt
 from typing import List
 
 
-def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
+def wavelets_acc_coeffs_single_axis(
+        X: pd.Series
+) -> pd.Series:
     """
     Compute fequency domain features using Wavelet trasnforms.
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
@@ -63,7 +65,9 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     return pd.Series(results, name=X.name)
 
 
-def wavelets_acc_coeffs(X: pd.DataFrame) -> pd.DataFrame:
+def wavelets_acc_coeffs(
+        X: pd.DataFrame
+) -> pd.DataFrame:
     """
     Compute fequency domain features using Wavelet trasnforms.
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
@@ -148,7 +152,7 @@ def wavelets_bands(
     Parameters
     ----------
     X : pd.DataFrame
-        Dataframe of shape (n_samples, n_times).
+        Input containing the time series. Shape has to be (n_signals, time)
     n_wavelet_bins : int, optional
         Number of wavelets power bands to extract. The default is 10.
     wavelet_band_cover_ratio : float, optional
@@ -188,6 +192,25 @@ def extract_wd_features(
 ) -> pd.DataFrame:
     """
     A function that computes Wavelets Domain features.
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Input containing the time series. Shape has to be (n_signals, time)
+    n_wavelet_bins : int, optional
+        Number of wavelets power bands to extract. The default is 10.
+    wavelet_band_cover_ratio : float, optional
+        The cover ration between bands. The default is 0.5.
+    wavelet_types : List[str], optional
+        Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
+    wavelet_dec_level : List[int], optional
+        Decomposition level. The default is [5, 5].
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the wavelet features per time serie.
+
     """
     return pd.concat( 
         [
