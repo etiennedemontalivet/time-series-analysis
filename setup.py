@@ -22,7 +22,7 @@ setup(
     # There are some restrictions on what makes a valid project name
     # specification here:
     # https://packaging.python.org/specifications/core-metadata/#name
-    name='AI analysis',  # Required
+    name='time-series-ml',  # Required
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
@@ -31,7 +31,7 @@ setup(
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#summary
-    description='Machine Learning library for analysis',  # Optional
+    description='Machine Learning library for time series analysis',  # Optional
 
     # This is an optional longer description of your project that represents
     # the body of text which users will see when they visit PyPI.
@@ -48,7 +48,7 @@ setup(
     # This should be a valid link to your project's main homepage.
     # This field corresponds to the "Home-Page" metadata field:
     # https://packaging.python.org/specifications/core-metadata/#home-page-optional
-    url='https://github.com/pypa/sampleproject',  # Optional
+    url='https://github.com/etiennedemontalivet/ai-analysis-python',  # Optional
 
     # This should be your name or the name of the organization which owns the
     # project.
@@ -65,7 +65,7 @@ setup(
     # This field adds keywords for your project which will appear on the
     # project page. What does your project relate to?
     # Note that this is a string of words separated by whitespace, not a list.
-    keywords='ml datascience',  # Optional
+    keywords='ml datascience timeseries',  # Optional
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
