@@ -114,12 +114,126 @@ def kurtosis(X: pd.DataFrame) -> pd.Series:
     """
     return pd.Series(stats.kurtosis(X), index=X.columns).add_suffix("_kurtosis")
 
+def _into_subchunks(x, subchunk_length, every_n=1):
+    """
+    from tsfresh sources:
+    https://tsfresh.readthedocs.io/en/latest/_modules/tsfresh/feature_extraction/feature_calculators.html#_into_subchunks
+    Split the time series x into subwindows of length "subchunk_length", starting every "every_n".
 
-def extract_td_features(X: pd.DataFrame) -> pd.DataFrame:
+    For example, the input data if [0, 1, 2, 3, 4, 5, 6] will be turned into a matrix
+
+        0  2  4
+        1  3  5
+        2  4  6
+
+    with the settings subchunk_length = 3 and every_n = 2
     """
+    len_x = len(x)
+
+    assert subchunk_length > 1
+    assert every_n > 0
+
+    # how often can we shift a window of size subchunk_length over the input?
+    num_shifts = (len_x - subchunk_length) // every_n + 1
+    shift_starts = every_n * np.arange(num_shifts)
+    indices = np.arange(subchunk_length)
+
+    indexer = np.expand_dims(indices, axis=0) + np.expand_dims(shift_starts, axis=1)
+    return np.asarray(x)[indexer]
+
+def sample_entropy_single_axis(
+        x: pd.Series,
+        m: int=2,
+        eta: float=0.2):
+    """
+    Calculate and return sample entropy of x.
+
+    Parameters
+    ----------
+    x : pd.Series
+        Time serie to extract sample entropy from.
+    m : int, optional
+        Length of subvectors. The default is 2.
+    eta : float, optional
+        Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
+
+    Returns
+    -------
+    float
+        Sample entropy of time serie.
+
+    """
+    x = np.array(x)
+
+    # if one of the values is NaN, we can not compute anything meaningful
+    if np.isnan(x).any():
+        return np.nan
+
+    tolerance = eta * np.std(x)  # 0.2 is a common value for r, according to wikipedia...
+
+    # Split time series and save all templates of length m
+    xm = _into_subchunks(x, m)
+    B = np.sum([np.sum(np.abs(xmi - xm).max(axis=1) <= tolerance) - 1 for xmi in xm])
+
+    # Similar for computing A
+    xmp1 = _into_subchunks(x, m + 1)
+    A = np.sum([np.sum(np.abs(xmi - xmp1).max(axis=1) <= tolerance) - 1 for xmi in xmp1])
+
+    # Return SampEn
+    return -np.log(A / B)
+
+def sample_entropy(
+        X: pd.DataFrame,
+        m: int=4,
+        eta: float=0.2) -> pd.Series:
+    """
+    Calculate and return sample entropies of X.
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Time series to extract sample entropy from.
+    m : int, optional
+        Length of subvectors. The default is 4.
+    eta : float, optional
+        Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
+
+    Returns
+    -------
+    pd.Series
+        Sample entropy of time series.
+
+    """
+    res = X.apply(
+        lambda col: sample_entropy_single_axis(
+            col, 
+            m=m, 
+            eta=eta), axis=0)
+    return res.add_suffix("_sampen")
+
+def extract_td_features(
+        X: pd.DataFrame,
+        sampen_m: int = 2,
+        sampen_eta: float = 0.2) -> pd.DataFrame:
+    """    
     A function that computes Time Domain features.
+
+    Parameters
+    ----------
+    X : pd.DataFrame
+        Time series to extract sample entropy from.
+    sampen_m : int, optional
+        Length of subvectors. The default is 2.
+    sampen_eta : float, optional
+        Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
+
+    Returns
+    -------
+    pd.DataFrame
+        A DataFrame containing the time domain features per time serie.
+
     """
-    # List all features extraction function
+    # List all time domain features function that does not have parameters
     funcs = [
         mean,
         var,
@@ -136,8 +250,19 @@ def extract_td_features(X: pd.DataFrame) -> pd.DataFrame:
         IQR,
         MAD
     ]
-
     out = []
     for func in funcs:
         out.append(pd.Series(data=func(X.T).values, name=func.__name__, index=X.index))
+    
+    # Time domain features with parameters
+    out.append(
+        pd.Series(
+            data= sample_entropy(
+                X=X.T, m=sampen_m, eta=sampen_eta
+            ).values,
+            name='sampen',
+            index=X.index
+        )
+    )
+    
     return pd.concat(out, axis=1)

@@ -24,7 +24,9 @@ def extract_all_features( X: pd.DataFrame,
     n_wavelet_bins: int=10,
     wavelet_band_cover_ratio: float = 0.5,
     wavelet_types: List[str]=["db2", "db3"],
-    wavelet_dec_level: List[int]=[5, 5]
+    wavelet_dec_level: List[int]=[5, 5],
+    sampen_m: int = 2,
+    sampen_eta: float = 0.2
 ) -> pd.DataFrame:
     """
     A function that computes all features.
@@ -61,6 +63,10 @@ def extract_all_features( X: pd.DataFrame,
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
     wavelet_dec_level : List[int], optional
         Decomposition level. The default is [5, 5].
+    sampen_m : int, optional
+        Length of subvectors. The default is 2.
+    sampen_eta : float, optional
+        Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
 
     Returns
     -------
@@ -70,7 +76,11 @@ def extract_all_features( X: pd.DataFrame,
     """
     return pd.concat(
     	[ 
-    		extract_td_features(X), 
+    		extract_td_features(
+                X=X,
+                sampen_m=sampen_m,
+                sampen_eta=sampen_eta
+            ), 
     		extract_fd_features(
       			X=X,
       			fs=fs, 
