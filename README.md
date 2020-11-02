@@ -1,4 +1,4 @@
-# AI Python Analysis
+# Time Series Analysis
 
 A framework for time-series analysis and features extraction / visualization.
 
