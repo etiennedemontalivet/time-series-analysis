@@ -65,7 +65,7 @@ setup(
     # This field adds keywords for your project which will appear on the
     # project page. What does your project relate to?
     # Note that this is a string of words separated by whitespace, not a list.
-    keywords='ml datascience timeseries',  # Optional
+    keywords='ml datascience timeseries dataanalysis',  # Optional
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
@@ -94,15 +94,10 @@ setup(
         'matplotlib>=3.1.2',
         'scikit-optimize',
         'umap-learn==0.3.10',
-        'shap==0.32.1',
-        'h2o==3.26.0.9',
-        'keras==2.2.4',
-        'tensorflow==2.3',
         'plotly==4.3.0',
         'imbalanced-learn==0.5.0',
         'imblearn==0.0',
         'autopep8==1.5',
-        'optuna==1.1.0',
         'PyAstronomy==0.14.0',
         'jupytext==1.5.0',
         'jupyterlab'
