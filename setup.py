@@ -97,7 +97,7 @@ setup(
         'shap==0.32.1',
         'h2o==3.26.0.9',
         'keras==2.2.4',
-        'tensorflow==2.3',
+        'tensorflow==2.3.1',
         'plotly==4.3.0',
         'imbalanced-learn==0.5.0',
         'imblearn==0.0',
