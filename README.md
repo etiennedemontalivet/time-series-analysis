@@ -7,7 +7,7 @@ A framework for time-series analysis and features extraction / visualization.
 ### From Github
 Download or clone the sources from the [github page](https://github.com/etiennedemontalivet/time-series-analysis/) and run:
 ```
-python steup.py install
+python setup.py install
 ```
 
 ### Release
