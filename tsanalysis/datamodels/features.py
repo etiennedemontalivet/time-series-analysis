@@ -2,7 +2,7 @@
 This module defines the FeaturesDataset class
 """
 import os
-from typing import Optional, List, Union
+from typing import Optional, List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
@@ -38,7 +38,7 @@ class FeaturesDataset:
             self.scaler = scaler
         self._X_scaled = None
         if scale:
-            self.scale(scaler)
+            self.scale()
 
     @property
     def shape(self):
@@ -57,7 +57,7 @@ class FeaturesDataset:
             )
         return res
 
-    def scale(self, scaler):
+    def scale(self):
         """
         Scale the features
         """

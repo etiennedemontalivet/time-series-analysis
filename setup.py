@@ -69,7 +69,8 @@ setup(
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['tests', 'docs', 'notebooks', 'contribs', 'pip-wheel-metadata', 'venv']),  # Required
+    packages=find_packages(exclude=[
+                           'tests', 'docs', 'notebooks', 'contribs', 'pip-wheel-metadata', 'venv']),  # Required
 
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this

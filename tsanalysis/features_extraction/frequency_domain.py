@@ -7,16 +7,17 @@ import pandas as pd
 from scipy import signal
 from typing import Callable
 
+
 def powerband_single_axis(
     X: pd.Series,
     fs: int = 1000,
     n_powerband_bins: int = 10,
-    powerband_explicit_freq_names: bool=True
+    powerband_explicit_freq_names: bool = True,
 ) -> pd.Series:
     """
     Compute power band coefficients of a single Series using Welch method.
     See https://en.wikipedia.org/wiki/Welch%27s_method
- 
+
     Parameters
     ----------
     X : pd.Series
@@ -35,20 +36,24 @@ def powerband_single_axis(
         The powerbands features values.
 
     """
-    nperseg = 2 *  ( n_powerband_bins - 1 )
+    nperseg = 2 * (n_powerband_bins - 1)
     f, power_band = signal.welch(X, window="hann", nperseg=nperseg, fs=fs)
     if powerband_explicit_freq_names:
-        freq_bins = [ str(int(f[i])) for i in range(n_powerband_bins) ]
+        freq_bins = [str(int(f[i])) for i in range(n_powerband_bins)]
     else:
-        freq_bins = [ str(i) for i in range(n_powerband_bins)]
-    return pd.Series(data=power_band, index=["powerband_"+freq_bins[i] for i in range(len(f))], name=X.name)
+        freq_bins = [str(i) for i in range(n_powerband_bins)]
+    return pd.Series(
+        data=power_band,
+        index=["powerband_" + freq_bins[i] for i in range(len(f))],
+        name=X.name,
+    )
 
 
 def powerband(
-    X: pd.DataFrame, 
+    X: pd.DataFrame,
     fs=1000,
-    n_powerband_bins: int=10,
-    powerband_explicit_freq_names: bool=True
+    n_powerband_bins: int = 10,
+    powerband_explicit_freq_names: bool = True,
 ) -> pd.DataFrame:
     """
     Compute power band coefficients of a DataFrame using Welch method.
@@ -77,9 +82,10 @@ def powerband(
             col,
             fs=fs,
             n_powerband_bins=n_powerband_bins,
-            powerband_explicit_freq_names=powerband_explicit_freq_names
-        ), 
-        axis=0)
+            powerband_explicit_freq_names=powerband_explicit_freq_names,
+        ),
+        axis=0,
+    )
     return res.T
 
 
@@ -88,10 +94,10 @@ def fd_max_argmax_energy_single_axis(
     window: str = "hann",
     skip_coefs: int = 1,
     last_coeff: int = None,
-    filtering_func: Callable = None
+    filtering_func: Callable = None,
 ) -> pd.Series:
     """
-    Compute the energy, the max and argmax of the magnitude of the fourier 
+    Compute the energy, the max and argmax of the magnitude of the fourier
     transform of the time series.
 
     Parameters
@@ -109,7 +115,7 @@ def fd_max_argmax_energy_single_axis(
     filtering_func : Callable, optional
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
-        
+
     Note
     ----
     Filtering, skip_coefs and last_coeff are NOT used for energy computation.
@@ -138,7 +144,9 @@ def fd_max_argmax_energy_single_axis(
     argmax_coef = np.argmax(mag_filtered[skip_coefs:last_coeff]) + skip_coefs
     max_coef = mag_filtered[argmax_coef]
     energy = np.sum(mag ** 2) / X.shape[0]
-    return pd.Series({"fd_max": max_coef, "fd_argmax": argmax_coef, "fd_energy": energy}, name=X.name)     
+    return pd.Series(
+        {"fd_max": max_coef, "fd_argmax": argmax_coef, "fd_energy": energy}, name=X.name
+    )
 
 
 def fd_max_argmax_energy(
@@ -146,10 +154,10 @@ def fd_max_argmax_energy(
     window: str = "hann",
     skip_coefs: int = 1,
     last_coeff: int = None,
-    filtering_func: Callable = None
+    filtering_func: Callable = None,
 ) -> pd.DataFrame:
     """
-    Compute the energy, the max and argmax of the magnitude of the fourier 
+    Compute the energy, the max and argmax of the magnitude of the fourier
     transform of the time series.
 
     Parameters
@@ -167,7 +175,7 @@ def fd_max_argmax_energy(
     filtering_func : Callable, optional
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
-        
+
     Note
     ----
     Filtering, skip_coefs and last_coeff are NOT used for energy computation.
@@ -184,14 +192,14 @@ def fd_max_argmax_energy(
             window=window,
             skip_coefs=skip_coefs,
             last_coeff=last_coeff,
-            filtering_func=filtering_func
-        ), 
-        axis=0
+            filtering_func=filtering_func,
+        ),
+        axis=0,
     )
     return res.T
 
 
-def extract_fd_features( 
+def extract_fd_features(
     X: pd.DataFrame,
     fs: int,
     n_powerband_bins: int = 10,
@@ -199,10 +207,10 @@ def extract_fd_features(
     fft_window: str = "hann",
     fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
-    fft_filtering_func: Callable = None
-    ) -> pd.DataFrame:
+    fft_filtering_func: Callable = None,
+) -> pd.DataFrame:
     """
-    A function that computes Frequency Domain features.    
+    A function that computes Frequency Domain features.
 
     Parameters
     ----------
@@ -234,19 +242,20 @@ def extract_fd_features(
 
     """
     return pd.concat(
-        [ 
+        [
             powerband(
                 X=X.T,
-                fs=fs, 
+                fs=fs,
                 n_powerband_bins=n_powerband_bins,
-                powerband_explicit_freq_names=powerband_explicit_freq_names
+                powerband_explicit_freq_names=powerband_explicit_freq_names,
             ),
             fd_max_argmax_energy(
                 X=X.T,
                 window=fft_window,
                 skip_coefs=fft_max_argmax_skip_coeffs,
                 last_coeff=fft_max_argmax_last_coeffs,
-                filtering_func=fft_filtering_func
-            )
+                filtering_func=fft_filtering_func,
+            ),
         ],
-        axis=1)
+        axis=1,
+    )

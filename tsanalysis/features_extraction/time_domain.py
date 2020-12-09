@@ -5,10 +5,7 @@ If we want to add a new function, we need to make sure that it handles DataFrame
 """
 import numpy as np
 import pandas as pd
-import scipy.signal as signal
 import scipy.stats as stats
-from PyAstronomy import pyaC
-from scipy.signal import butter, filtfilt
 
 
 def mean(X: pd.DataFrame) -> pd.Series:
@@ -114,6 +111,7 @@ def kurtosis(X: pd.DataFrame) -> pd.Series:
     """
     return pd.Series(stats.kurtosis(X), index=X.columns).add_suffix("_kurtosis")
 
+
 def _into_subchunks(x, subchunk_length, every_n=1):
     """
     from tsfresh sources:
@@ -141,10 +139,8 @@ def _into_subchunks(x, subchunk_length, every_n=1):
     indexer = np.expand_dims(indices, axis=0) + np.expand_dims(shift_starts, axis=1)
     return np.asarray(x)[indexer]
 
-def sample_entropy_single_axis(
-        x: pd.Series,
-        m: int=2,
-        eta: float=0.2):
+
+def sample_entropy_single_axis(x: pd.Series, m: int = 2, eta: float = 0.2):
     """
     Calculate and return sample entropy of x.
 
@@ -169,7 +165,8 @@ def sample_entropy_single_axis(
     if np.isnan(x).any():
         return np.nan
 
-    tolerance = eta * np.std(x)  # 0.2 is a common value for r, according to wikipedia...
+    # 0.2 is a common value for r, according to wikipedia...
+    tolerance = eta * np.std(x)
 
     # Split time series and save all templates of length m
     xm = _into_subchunks(x, m)
@@ -177,15 +174,15 @@ def sample_entropy_single_axis(
 
     # Similar for computing A
     xmp1 = _into_subchunks(x, m + 1)
-    A = np.sum([np.sum(np.abs(xmi - xmp1).max(axis=1) <= tolerance) - 1 for xmi in xmp1])
+    A = np.sum(
+        [np.sum(np.abs(xmi - xmp1).max(axis=1) <= tolerance) - 1 for xmi in xmp1]
+    )
 
     # Return SampEn
     return -np.log(A / B)
 
-def sample_entropy(
-        X: pd.DataFrame,
-        m: int=4,
-        eta: float=0.2) -> pd.Series:
+
+def sample_entropy(X: pd.DataFrame, m: int = 4, eta: float = 0.2) -> pd.Series:
     """
     Calculate and return sample entropies of X.
 
@@ -204,18 +201,14 @@ def sample_entropy(
         Sample entropy of time series.
 
     """
-    res = X.apply(
-        lambda col: sample_entropy_single_axis(
-            col, 
-            m=m, 
-            eta=eta), axis=0)
+    res = X.apply(lambda col: sample_entropy_single_axis(col, m=m, eta=eta), axis=0)
     return res.add_suffix("_sampen")
 
+
 def extract_td_features(
-        X: pd.DataFrame,
-        sampen_m: int = 2,
-        sampen_eta: float = 0.2) -> pd.DataFrame:
-    """    
+    X: pd.DataFrame, sampen_m: int = 2, sampen_eta: float = 0.2
+) -> pd.DataFrame:
+    """
     A function that computes Time Domain features.
 
     Parameters
@@ -248,21 +241,19 @@ def extract_td_features(
         skewness,
         kurtosis,
         IQR,
-        MAD
+        MAD,
     ]
     out = []
     for func in funcs:
         out.append(pd.Series(data=func(X.T).values, name=func.__name__, index=X.index))
-    
+
     # Time domain features with parameters
     out.append(
         pd.Series(
-            data= sample_entropy(
-                X=X.T, m=sampen_m, eta=sampen_eta
-            ).values,
-            name='sampen',
-            index=X.index
+            data=sample_entropy(X=X.T, m=sampen_m, eta=sampen_eta).values,
+            name="sampen",
+            index=X.index,
         )
     )
-    
+
     return pd.concat(out, axis=1)
