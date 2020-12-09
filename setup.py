@@ -85,23 +85,19 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'lightgbm>=2.3.0',
         'numpy>=1.17.3',
         'pandas>=0.25.2',
         'pyentrp>=0.5.0',
         'PyWavelets>=1.0.6',
         'pyyaml>=5.1.2',
-        'seaborn>=0.9.0',
         'matplotlib>=3.1.2',
         'scikit-optimize',
-        'umap-learn==0.3.10',
         'plotly==4.3.0',
-        'imbalanced-learn==0.5.0',
         'imblearn==0.0',
         'autopep8==1.5',
-        'PyAstronomy==0.14.0',
         'jupytext==1.5.0',
-        'jupyterlab'
+        'jupyterlab',
+        'pylint'
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
