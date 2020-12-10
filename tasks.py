@@ -9,7 +9,6 @@ It can be used to:
 - build documentation
 - serve documentation
 """
-import os
 from invoke import task
 
 
@@ -44,7 +43,7 @@ def format(c):
 
 @task
 def test(c):
-    c.run("python -m pytest")
+    c.run("pytest --cov-report term --cov=tsanalysis tests/")
 
 
 @task
