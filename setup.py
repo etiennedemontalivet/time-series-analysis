@@ -26,7 +26,7 @@ setup(
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
-    version='0.1.2',  # Required
+    version='0.0.1',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -69,7 +69,8 @@ setup(
 
     # You can just specify package directories manually here if your project is
     # simple. Or you can use find_packages().
-    packages=find_packages(exclude=['tests', 'docs', 'notebooks', 'contribs', 'pip-wheel-metadata', 'venv']),  # Required
+    packages=find_packages(exclude=[
+                           'tests', 'docs', 'notebooks', 'contribs', 'pip-wheel-metadata', 'venv']),  # Required
 
     # Specify which Python versions you support. In contrast to the
     # 'Programming Language' classifiers above, 'pip install' will check this
@@ -84,21 +85,16 @@ setup(
     # For an analysis of "install_requires" vs pip's requirements files see:
     # https://packaging.python.org/en/latest/requirements.html
     install_requires=[
-        'lightgbm>=2.3.0',
         'numpy>=1.17.3',
         'pandas>=0.25.2',
         'pyentrp>=0.5.0',
         'PyWavelets>=1.0.6',
         'pyyaml>=5.1.2',
-        'seaborn>=0.9.0',
         'matplotlib>=3.1.2',
         'scikit-optimize',
-        'umap-learn==0.3.10',
         'plotly==4.3.0',
-        'imbalanced-learn==0.5.0',
         'imblearn==0.0',
         'autopep8==1.5',
-        'PyAstronomy==0.14.0',
         'jupytext==1.5.0',
         'jupyterlab'
     ],  # Optional
@@ -112,7 +108,7 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': [
-            'flake8>=3.7',
+            'pylint'
             'black',
             'sphinx>=2.2',
             'invoke>=1.3',

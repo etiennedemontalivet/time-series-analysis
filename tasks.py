@@ -9,8 +9,8 @@ It can be used to:
 - build documentation
 - serve documentation
 """
-import os
 from invoke import task
+
 
 @task
 def clean(c, docs=True, extra=''):
@@ -33,22 +33,22 @@ def build(c, docs=False):
 
 @task
 def servedocs(c, port=8000):
-    c.run(f"cd docs && make html && cd build/html && python -m http.server {port}", pty=True)
+    c.run(
+        f"cd docs && make html && cd build/html && python -m http.server {port}", pty=True)
 
 
 @task
 def format(c):
-    c.run("python -m black framework")
-
+    c.run("black tsanalysis")
 
 @task
 def test(c):
-    c.run("python -m pytest")
+    c.run("pytest --cov-report term --cov=tsanalysis tests/")
 
 
 @task
 def lint(c):
-    c.run("flake8 framework")
+    c.run("pylint tsanalysis")
 
 
 @task
