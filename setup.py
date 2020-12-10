@@ -26,7 +26,7 @@ setup(
 
     # Versions should comply with PEP 440:
     # https://www.python.org/dev/peps/pep-0440/
-    version='0.1.2',  # Required
+    version='0.0.1',  # Required
 
     # This is a one-line description or tagline of what your project does. This
     # corresponds to the "Summary" metadata field:
@@ -96,8 +96,7 @@ setup(
         'imblearn==0.0',
         'autopep8==1.5',
         'jupytext==1.5.0',
-        'jupyterlab',
-        'pylint'
+        'jupyterlab'
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -109,7 +108,7 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': [
-            'flake8>=3.7',
+            'pylint'
             'black',
             'sphinx>=2.2',
             'invoke>=1.3',
