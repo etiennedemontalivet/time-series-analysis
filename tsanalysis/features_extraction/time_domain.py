@@ -170,9 +170,9 @@ def sample_entropy_single_axis(x: pd.Series, m: int = 2, eta: float = 0.2):
 
     # Split time series and save all templates of length m
     xm = _into_subchunks(x, m)
-    B = np.sum(
+    B = np.sum(  # pylint: disable=invalid-name
         [np.sum(np.abs(xmi - xm).max(axis=1) <= tolerance) - 1 for xmi in xm]
-    )  # pylint: disable=invalid-name
+    )
 
     # Similar for computing A
     xmp1 = _into_subchunks(x, m + 1)

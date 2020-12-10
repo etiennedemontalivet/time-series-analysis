@@ -22,14 +22,14 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
     # We are only interested in detailed coefficients 5 and 4 with Daubechies 3
-    (
+    (  # pylint: disable=unbalanced-tuple-unpacking
         _,
         cd5_db3,
         cd4_db3,
         _,
         _,
         _,
-    ) = pywt.wavedec(  # pylint: disable=unbalanced-tuple-unpacking
+    ) = pywt.wavedec(
         X, "db3", level=5
     )
     # We compute the sum of squared detailed coefficients
@@ -37,14 +37,14 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     cd4_db3_sq = np.sum(cd4_db3 ** 2)
 
     # We are interested in coefficients 5, 4, 3, 2, 1 with Daubechies 2
-    (
+    (  # pylint: disable=unbalanced-tuple-unpacking
         _,
         cd5_db2,
         cd4_db2,
         cd3_db2,
         cd2_db2,
         cd1_db2,
-    ) = pywt.wavedec(  # pylint: disable=unbalanced-tuple-unpacking
+    ) = pywt.wavedec(
         X, "db2", level=5
     )
     # We compute the sum of squared detailed coefficients
