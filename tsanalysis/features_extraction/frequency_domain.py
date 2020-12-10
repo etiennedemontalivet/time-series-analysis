@@ -198,6 +198,7 @@ def fd_max_argmax_energy(
     )
     return res.T
 
+
 # pylint: disable=too-many-arguments
 def extract_fd_features(
     X: pd.DataFrame,
@@ -207,7 +208,7 @@ def extract_fd_features(
     fft_window: str = "hann",
     fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
-    fft_filtering_func: Callable = None
+    fft_filtering_func: Callable = None,
 ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.

@@ -13,13 +13,14 @@ class FeaturesDataset:
     """
     TODO
     """
+
     def __init__(
         self,
         X: pd.DataFrame,
         y: pd.Series,
         scale: bool = True,
         name: str = None,
-        scaler=None
+        scaler=None,
     ):
         if name is None:
             self.name = "unamed_features_set"

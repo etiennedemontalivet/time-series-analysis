@@ -40,8 +40,7 @@ def servedocs(c, port=8000):
 
 @task
 def format(c):
-    c.run("python -m black framework")
-
+    c.run("black tsanalysis")
 
 @task
 def test(c):
@@ -50,7 +49,7 @@ def test(c):
 
 @task
 def lint(c):
-    c.run("flake8 framework")
+    c.run("pylint tsanalysis")
 
 
 @task
