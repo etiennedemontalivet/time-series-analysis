@@ -1,15 +1,15 @@
 """
-All functions below are vectorized, I.E, they can be applied on a whole DataFrame without having to apply
-to each column manually.
+All functions below are vectorized, I.E, they can be applied on a whole DataFrame
+without having to apply to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
 """
+from typing import List
 import numpy as np
 import pandas as pd
 from scipy import signal
 import pywt
-from typing import List
 
-
+# pylint: disable=too-many-locals
 def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     """
     Compute fequency domain features using Wavelet trasnforms.
@@ -22,42 +22,46 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
     # We are only interested in detailed coefficients 5 and 4 with Daubechies 3
-    _, cD5_db3, cD4_db3, _, _, _ = pywt.wavedec(X, "db3", level=5) # pylint: disable=unbalanced-tuple-unpacking
+    _, cd5_db3, cd4_db3, _, _, _ = pywt.wavedec( # pylint: disable=unbalanced-tuple-unpacking
+        X, "db3", level=5
+    )
     # We compute the sum of squared detailed coefficients
-    cD5_db3_sq = np.sum(cD5_db3 ** 2)
-    cD4_db3_sq = np.sum(cD4_db3 ** 2)
+    cd5_db3_sq = np.sum(cd5_db3 ** 2)
+    cd4_db3_sq = np.sum(cd4_db3 ** 2)
 
     # We are interested in coefficients 5, 4, 3, 2, 1 with Daubechies 2
-    _, cD5_db2, cD4_db2, cD3_db2, cD2_db2, cD1_db2 = pywt.wavedec(X, "db2", level=5) # pylint: disable=unbalanced-tuple-unpacking
+    _, cd5_db2, cd4_db2, cd3_db2, cd2_db2, cd1_db2 = pywt.wavedec( # pylint: disable=unbalanced-tuple-unpacking
+        X, "db2", level=5
+    )
     # We compute the sum of squared detailed coefficients
-    cD5_db2_sq = np.sum(cD5_db2 ** 2)
-    cD4_db2_sq = np.sum(cD4_db2 ** 2)
-    cD3_db2_sq = np.sum(cD3_db2 ** 2)
-    cD2_db2_sq = np.sum(cD2_db2 ** 2)
-    cD1_db2_sq = np.sum(cD1_db2 ** 2)
+    cd5_db2_sq = np.sum(cd5_db2 ** 2)
+    cd4_db2_sq = np.sum(cd4_db2 ** 2)
+    cd3_db2_sq = np.sum(cd3_db2 ** 2)
+    cd2_db2_sq = np.sum(cd2_db2 ** 2)
+    cd1_db2_sq = np.sum(cd1_db2 ** 2)
     # We compute the absolute sum of coefficients
-    CD5_as = np.sum(np.abs(cD5_db2))
-    CD4_as = np.sum(np.abs(cD4_db2))
-    CD3_as = np.sum(np.abs(cD3_db2))
-    CD2_as = np.sum(np.abs(cD2_db2))
-    CD1_as = np.sum(np.abs(cD1_db2))
+    cd5_as = np.sum(np.abs(cd5_db2))
+    cd4_as = np.sum(np.abs(cd4_db2))
+    cd3_as = np.sum(np.abs(cd3_db2))
+    cd2_as = np.sum(np.abs(cd2_db2))
+    cd1_as = np.sum(np.abs(cd1_db2))
 
     results = {
         # Daubechies 3 detailed coefficient squared sum
-        "cD5_db3_sq": cD5_db3_sq,
-        "cD4_db3_sq": cD4_db3_sq,
-        # Daubechies 2 detailed coefficients squared sum
-        "cD5_db2_sq": cD5_db2_sq,
-        "cD4_db2_sq": cD4_db2_sq,
-        "cD3_db2_sq": cD3_db2_sq,
-        "cD2_db2_sq": cD2_db2_sq,
-        "cD1_db2_sq": cD1_db2_sq,
-        # Daubechies 2 detailed coefficients absolute sum
-        "CD5_db2_as": CD5_as,
-        "CD4_db2_as": CD4_as,
-        "CD3_db2_as": CD3_as,
-        "CD2_db2_as": CD2_as,
-        "CD1_db2_as": CD1_as,
+        "cd5_db3_sq": cd5_db3_sq,
+        "cd4_db3_sq": cd4_db3_sq,
+        # daubechies 2 detailed coefficients squared sum
+        "cd5_db2_sq": cd5_db2_sq,
+        "cd4_db2_sq": cd4_db2_sq,
+        "cd3_db2_sq": cd3_db2_sq,
+        "cd2_db2_sq": cd2_db2_sq,
+        "cd1_db2_sq": cd1_db2_sq,
+        # daubechies 2 detailed coefficients absolute sum
+        "cd5_db2_as": cd5_as,
+        "cd4_db2_as": cd4_as,
+        "cd3_db2_as": cd3_as,
+        "cd2_db2_as": cd2_as,
+        "cd1_db2_as": cd1_as,
     }
 
     return pd.Series(results, name=X.name)
@@ -186,7 +190,7 @@ def wavelets_bands(
     )
     return res.T
 
-
+# pylint: disable=dangerous-default-value
 def extract_wd_features(
     X: pd.DataFrame,
     n_wavelet_bins: int = 10,
@@ -194,7 +198,6 @@ def extract_wd_features(
     wavelet_types: List[str] = ["db2", "db3"],
     wavelet_dec_level: List[int] = [5, 5],
 ) -> pd.DataFrame:
-    # pylint: disable=dangerous-default-value
     """
     A function that computes Wavelets Domain features.
 
@@ -225,7 +228,7 @@ def extract_wd_features(
                 n_wavelet_bins=n_wavelet_bins,
                 wavelet_band_cover_ratio=wavelet_band_cover_ratio,
                 wavelet_types=wavelet_types,
-                wavelet_dec_level=wavelet_dec_level,
+                wavelet_dec_level=wavelet_dec_level
             ),
         ],
         axis=1,

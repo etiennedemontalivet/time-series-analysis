@@ -1,6 +1,6 @@
 """
-All functions below are vectorized, I.E, they can be applied on a whole DataFrame without having to apply
-to each column manually.
+All functions below are vectorized, I.E, they can be applied on a whole DataFrame
+without having to apply to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
 """
 import numpy as np
@@ -50,11 +50,11 @@ def minimum(X: pd.DataFrame) -> pd.Series:
     return X.min().add_suffix("_min")
 
 
-def RMS(X: pd.DataFrame) -> pd.Series:
+def rms(X: pd.DataFrame) -> pd.Series:
     """
     Compute Root Mean Square for each column of given DataFrame and return a Series
     """
-    return np.sqrt(np.mean(X ** 2)).add_suffix("_RMS")
+    return np.sqrt(np.mean(X ** 2)).add_suffix("_rms")
 
 
 def energy(X: pd.DataFrame) -> pd.Series:
@@ -64,20 +64,20 @@ def energy(X: pd.DataFrame) -> pd.Series:
     return (X ** 2).sum().add_suffix("_energy")
 
 
-def IQR(X: pd.DataFrame, axis: int = 0) -> pd.Series:
+def iqr(X: pd.DataFrame, axis: int = 0) -> pd.Series:
     """
     Compute IQR for each column of a given DataFrame and return a Series
     """
     res = X.apply(lambda col: stats.iqr(col, interpolation="lower"), axis=axis)
-    return res.add_suffix("_IQR")
+    return res.add_suffix("_iqr")
 
 
-def MAD(X: pd.DataFrame) -> pd.Series:
+def mad(X: pd.DataFrame) -> pd.Series:
     """
     Compute Mean Absolute Difference for each column of a given DataFrame and return a Series
     """
     res = np.mean(np.absolute(X - np.mean(X)))
-    return res.add_suffix("_MAD")
+    return res.add_suffix("_mad")
 
 
 def argmax(X: pd.DataFrame) -> pd.Series:
@@ -170,11 +170,11 @@ def sample_entropy_single_axis(x: pd.Series, m: int = 2, eta: float = 0.2):
 
     # Split time series and save all templates of length m
     xm = _into_subchunks(x, m)
-    B = np.sum([np.sum(np.abs(xmi - xm).max(axis=1) <= tolerance) - 1 for xmi in xm])
+    B = np.sum([np.sum(np.abs(xmi - xm).max(axis=1) <= tolerance) - 1 for xmi in xm]) # pylint: disable=invalid-name
 
     # Similar for computing A
     xmp1 = _into_subchunks(x, m + 1)
-    A = np.sum(
+    A = np.sum( # pylint: disable=invalid-name
         [np.sum(np.abs(xmi - xmp1).max(axis=1) <= tolerance) - 1 for xmi in xmp1]
     )
 
@@ -234,14 +234,14 @@ def extract_td_features(
         median,
         maximum,
         minimum,
-        RMS,
+        rms,
         argmax,
         argmin,
         energy,
         skewness,
         kurtosis,
-        IQR,
-        MAD,
+        iqr,
+        mad,
     ]
     out = []
     for func in funcs:

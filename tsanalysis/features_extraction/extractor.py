@@ -1,16 +1,16 @@
 """
 This module defines the complete features extraction.
 """
-import pandas as pd
 from typing import Callable
 from typing import List
+import pandas as pd
 
 from cepstrum_domain import extract_cepd_features
 from time_domain import extract_td_features
 from wavelets_domain import extract_wd_features
 from frequency_domain import extract_fd_features
 
-
+# pylint: disable=too-many-arguments,dangerous-default-value
 def extract_all_features(
     X: pd.DataFrame,
     fs: int,
@@ -23,12 +23,11 @@ def extract_all_features(
     fft_filtering_func: Callable = None,
     n_wavelet_bins: int = 10,
     wavelet_band_cover_ratio: float = 0.5,
-    wavelet_types: List[str] = ["db2", "db3"], 
+    wavelet_types: List[str] = ["db2", "db3"],
     wavelet_dec_level: List[int] = [5, 5],
     sampen_m: int = 2,
-    sampen_eta: float = 0.2
+    sampen_eta: float = 0.2,
 ) -> pd.DataFrame:
-    # pylint: disable=dangerous-default-value
     """
     A function that computes all features.
 
@@ -94,7 +93,7 @@ def extract_all_features(
                 n_wavelet_bins=n_wavelet_bins,
                 wavelet_band_cover_ratio=wavelet_band_cover_ratio,
                 wavelet_types=wavelet_types,
-                wavelet_dec_level=wavelet_dec_level,
+                wavelet_dec_level=wavelet_dec_level
             ),
         ],
         axis=1,

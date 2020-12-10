@@ -26,8 +26,9 @@ class ClassificationResults:
         Estimated targets as returned by a classifier.
 
     labels_name : list, optional
-        List of labels to index the matrix. This may be used to reorder or select a subset of labels.
-        If None is given, those that appear at least once in y_true or y_pred are used in sorted order. The default is None.
+        List of labels to index the matrix. This may be used to reorder or select
+        a subset of labels. If None is given, those that appear at least once in
+        y_true or y_pred are used in sorted order. The default is None.
 
 
     Attributes
@@ -43,7 +44,7 @@ class ClassificationResults:
         In multilabel classification, this function computes subset accuracy:
         the set of labels predicted for a sample must exactly match the
         corresponding set of labels in y_true.
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score) # noqa
+        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score)
 
     matthews_corrcoef_ : float
         number of training samples observed in each class.
@@ -70,7 +71,7 @@ class ClassificationResults:
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
-    """# pylint: disable=line-too-long
+    """
 
     def __init__(self, y_true: pd.Series, y_pred: pd.Series):
         """
