@@ -93,7 +93,7 @@ def extract_all_features(
                 n_wavelet_bins=n_wavelet_bins,
                 wavelet_band_cover_ratio=wavelet_band_cover_ratio,
                 wavelet_types=wavelet_types,
-                wavelet_dec_level=wavelet_dec_level
+                wavelet_dec_level=wavelet_dec_level,
             ),
         ],
         axis=1,

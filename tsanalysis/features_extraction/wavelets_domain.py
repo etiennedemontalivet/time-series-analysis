@@ -22,7 +22,14 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
     # We are only interested in detailed coefficients 5 and 4 with Daubechies 3
-    _, cd5_db3, cd4_db3, _, _, _ = pywt.wavedec( # pylint: disable=unbalanced-tuple-unpacking
+    (
+        _,
+        cd5_db3,
+        cd4_db3,
+        _,
+        _,
+        _,
+    ) = pywt.wavedec(  # pylint: disable=unbalanced-tuple-unpacking
         X, "db3", level=5
     )
     # We compute the sum of squared detailed coefficients
@@ -30,7 +37,14 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     cd4_db3_sq = np.sum(cd4_db3 ** 2)
 
     # We are interested in coefficients 5, 4, 3, 2, 1 with Daubechies 2
-    _, cd5_db2, cd4_db2, cd3_db2, cd2_db2, cd1_db2 = pywt.wavedec( # pylint: disable=unbalanced-tuple-unpacking
+    (
+        _,
+        cd5_db2,
+        cd4_db2,
+        cd3_db2,
+        cd2_db2,
+        cd1_db2,
+    ) = pywt.wavedec(  # pylint: disable=unbalanced-tuple-unpacking
         X, "db2", level=5
     )
     # We compute the sum of squared detailed coefficients
@@ -190,6 +204,7 @@ def wavelets_bands(
     )
     return res.T
 
+
 # pylint: disable=dangerous-default-value
 def extract_wd_features(
     X: pd.DataFrame,
@@ -228,7 +243,7 @@ def extract_wd_features(
                 n_wavelet_bins=n_wavelet_bins,
                 wavelet_band_cover_ratio=wavelet_band_cover_ratio,
                 wavelet_types=wavelet_types,
-                wavelet_dec_level=wavelet_dec_level
+                wavelet_dec_level=wavelet_dec_level,
             ),
         ],
         axis=1,
