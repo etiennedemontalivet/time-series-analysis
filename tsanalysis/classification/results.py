@@ -71,7 +71,7 @@ class ClassificationResults:
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
-        
+
     Examples
     --------
     >>> import pandas as pd
@@ -79,7 +79,7 @@ class ClassificationResults:
     >>> y_true = pd.Series( data=[2, 0, 2, 2, 0, 1], index=['f0', 'f1', 'f3', 'f4', 'f5', 'f6'] )
     >>> y_pred = pd.Series( data=[0, 0, 2, 2, 0, 2], index=['f0', 'f1', 'f3', 'f4', 'f5', 'f6'] )
     >>> cr = ClassificationResults(y_true, y_pred)
-    
+
     >>> cr.metrics
     {'matthews_corrcoef': 0.45226701686664544,
      'accuracy': 0.6666666666666666,
@@ -90,16 +90,16 @@ class ClassificationResults:
      'confusion_matrix': array([[2, 0, 0],
             [0, 0, 1],
             [1, 0, 2]], dtype=int64)}
-    
+
     >>> cr.classes_
     array([0, 1, 2], dtype=int64)
 
     >>> cr.misclassified
     Index(['f0', 'f6'], dtype='object')
-    
+
     >>> cr.plot_confusion_matrix(labels_names=["cat", "dog", "sphinx"])
     >>> # Plot a nice confusion matrix
-    
+
     """
 
     def __init__(self, y_true: pd.Series, y_pred: pd.Series):

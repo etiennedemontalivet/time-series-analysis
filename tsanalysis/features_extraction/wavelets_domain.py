@@ -29,9 +29,7 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
         _,
         _,
         _,
-    ) = pywt.wavedec(
-        X, "db3", level=5
-    )
+    ) = pywt.wavedec(X, "db3", level=5)
     # We compute the sum of squared detailed coefficients
     cd5_db3_sq = np.sum(cd5_db3 ** 2)
     cd4_db3_sq = np.sum(cd4_db3 ** 2)
@@ -44,9 +42,7 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
         cd3_db2,
         cd2_db2,
         cd1_db2,
-    ) = pywt.wavedec(
-        X, "db2", level=5
-    )
+    ) = pywt.wavedec(X, "db2", level=5)
     # We compute the sum of squared detailed coefficients
     cd5_db2_sq = np.sum(cd5_db2 ** 2)
     cd4_db2_sq = np.sum(cd4_db2 ** 2)
