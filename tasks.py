@@ -12,6 +12,7 @@ It can be used to:
 import os
 from invoke import task
 
+
 @task
 def clean(c, docs=True, extra=''):
     patterns = ['build', 'dist']
@@ -33,7 +34,8 @@ def build(c, docs=False):
 
 @task
 def servedocs(c, port=8000):
-    c.run(f"cd docs && make html && cd build/html && python -m http.server {port}", pty=True)
+    c.run(
+        f"cd docs && make html && cd build/html && python -m http.server {port}", pty=True)
 
 
 @task

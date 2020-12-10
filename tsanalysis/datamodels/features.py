@@ -2,7 +2,7 @@
 This module defines the FeaturesDataset class
 """
 import os
-from typing import Optional, List, Union
+from typing import Optional, List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
@@ -10,13 +10,16 @@ from sklearn.preprocessing import StandardScaler
 
 
 class FeaturesDataset:
+    """
+    TODO
+    """
     def __init__(
         self,
         X: pd.DataFrame,
         y: pd.Series,
         scale: bool = True,
         name: str = None,
-        scaler=None,
+        scaler=None
     ):
         if name is None:
             self.name = "unamed_features_set"
@@ -38,18 +41,45 @@ class FeaturesDataset:
             self.scaler = scaler
         self._X_scaled = None
         if scale:
-            self.scale(scaler)
+            self.scale()
 
     @property
     def shape(self):
+        """
+        Get X Shape.
+
+        Returns
+        -------
+        tuple
+            Shape.
+
+        """
         return self.X.shape
 
     @property
     def index(self):
+        """
+        Get X indexes.
+
+        Returns
+        -------
+        pd.Index
+            X indexes.
+
+        """
         return self.X.index
 
     @property
     def X_scaled(self):
+        """
+        Get X scaled
+
+        Returns
+        -------
+        res : pd.DataFrame
+            X scaled if scaling has been fitting, else None.
+
+        """
         res = self._X_scaled
         if res is None:
             warn(
@@ -57,7 +87,7 @@ class FeaturesDataset:
             )
         return res
 
-    def scale(self, scaler):
+    def scale(self):
         """
         Scale the features
         """
@@ -77,7 +107,7 @@ class FeaturesDataset:
         """
         Return a features dataset including only the asked label.
         """
-        if not (isinstance(label, int) or isinstance(label, list)):
+        if not isinstance(label, (int, list)):
             raise ValueError("Argument label should be an int or a list of int")
         if isinstance(label, list):
             for i in label:
