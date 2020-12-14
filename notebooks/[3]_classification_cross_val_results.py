@@ -12,6 +12,11 @@
 #     name: python3
 # ---
 
+# + [markdown] toc=true
+# <h1>Table of Contents<span class="tocSkip"></span></h1>
+# <div class="toc"><ul class="toc-item"><li><span><a href="#Objective" data-toc-modified-id="Objective-1"><span class="toc-item-num">1&nbsp;&nbsp;</span>Objective</a></span><ul class="toc-item"><li><span><a href="#Context" data-toc-modified-id="Context-1.1"><span class="toc-item-num">1.1&nbsp;&nbsp;</span>Context</a></span></li><li><span><a href="#IRIS" data-toc-modified-id="IRIS-1.2"><span class="toc-item-num">1.2&nbsp;&nbsp;</span>IRIS</a></span><ul class="toc-item"><li><span><a href="#Load-iris" data-toc-modified-id="Load-iris-1.2.1"><span class="toc-item-num">1.2.1&nbsp;&nbsp;</span>Load iris</a></span></li><li><span><a href="#Cross-val-using-CrossValidationResults" data-toc-modified-id="Cross-val-using-CrossValidationResults-1.2.2"><span class="toc-item-num">1.2.2&nbsp;&nbsp;</span>Cross-val using <code>CrossValidationResults</code></a></span></li></ul></li><li><span><a href="#Breast-Cancer" data-toc-modified-id="Breast-Cancer-1.3"><span class="toc-item-num">1.3&nbsp;&nbsp;</span>Breast Cancer</a></span><ul class="toc-item"><li><span><a href="#Load-data" data-toc-modified-id="Load-data-1.3.1"><span class="toc-item-num">1.3.1&nbsp;&nbsp;</span>Load data</a></span></li><li><span><a href="#Cross-val-using-CrossValidationResults" data-toc-modified-id="Cross-val-using-CrossValidationResults-1.3.2"><span class="toc-item-num">1.3.2&nbsp;&nbsp;</span>Cross-val using <code>CrossValidationResults</code></a></span></li></ul></li></ul></li></ul></div>
+# -
+
 # ## Objective
 
 # In this notebook we will see how to use the results of a cross-validation through the `CrossValidationResults` class.
@@ -91,7 +96,7 @@ X_df, y_df = load_breast_cancer(return_X_y=True, as_frame=True)
 # Creating dataframe and serie with fake filenames
 files = [ "file_" + str(i) for i in range(len(y_df))]
 y_df.index = files
-X_df.index
+X_df.index = files
 
 # #### Cross-val using `CrossValidationResults`
 
