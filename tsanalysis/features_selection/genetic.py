@@ -320,7 +320,7 @@ def genetic_features_selection(
             print(scores_df.iloc[0])
             print("================================================================")
             print()
-            
+
         # Update new population...
         population_features = children_features
 
