@@ -140,3 +140,4 @@ dmypy.json
 cython_debug/
 
 .pylint.d
+**/.tmp_brutforce
