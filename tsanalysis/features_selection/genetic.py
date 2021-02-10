@@ -130,9 +130,13 @@ def genetic_features_selection(
         if "epoch" not in str(inspect.signature(params_updater)):
             raise TypeError(rf"{params_updater} must have 'epoch' as argument.")
         if "genetic_params" not in str(inspect.signature(params_updater)):
-            raise TypeError(rf"{params_updater} must have 'genetic_params' as argument.")
+            raise TypeError(
+                rf"{params_updater} must have 'genetic_params' as argument."
+            )
         if "objectif_output" not in str(inspect.signature(params_updater)):
-            raise TypeError(rf"{params_updater} must have 'objectif_output' as argument.")
+            raise TypeError(
+                rf"{params_updater} must have 'objectif_output' as argument."
+            )
 
     # Save temporary files
     if not os.path.exists(".tmp_genetic"):
@@ -154,8 +158,8 @@ def genetic_features_selection(
             rf"CROSS-OVER: {n_best_individuals}/{n_population} best individal(s) selected."
         )
         print(
-            rf"MUTATION: {n_mutation_features} randomly changed feature(s) from " +
-            rf"{n_mutation_indiviuals}/{n_population} individual(s)."
+            rf"MUTATION: {n_mutation_features} randomly changed feature(s) from "
+            + rf"{n_mutation_indiviuals}/{n_population} individual(s)."
         )
         print("********************\n")
 
@@ -171,7 +175,9 @@ def genetic_features_selection(
             genetic_params_epoch = params_updater(
                 epoch=i_epoch,
                 genetic_params=genetic_params_epoch,
-                objectif_output=objectif(features_list=population_features[scores_df.index[0]]),
+                objectif_output=objectif(
+                    features_list=population_features[scores_df.index[0]]
+                ),
             )
 
             if genetic_params_epoch_old != genetic_params_epoch:
@@ -187,12 +193,12 @@ def genetic_features_selection(
                 if verbose is True:
                     print("******* INFO *******")
                     print(
-                        rf"CROSS-OVER: {n_best_individuals}/{n_population} best " +
-                            "individal(s) selected."
+                        rf"CROSS-OVER: {n_best_individuals}/{n_population} best "
+                        + "individal(s) selected."
                     )
                     print(
-                        rf"MUTATION: {n_mutation_features} randomly changed feature(s) " +
-                        rf"from {n_mutation_indiviuals}/{n_population} individual(s)."
+                        rf"MUTATION: {n_mutation_features} randomly changed feature(s) "
+                        + rf"from {n_mutation_indiviuals}/{n_population} individual(s)."
                     )
                     print("********************\n")
 
