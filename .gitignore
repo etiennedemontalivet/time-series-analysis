@@ -143,3 +143,4 @@ cython_debug/
 **/.tmp_brutforce
 **/.tmp_genetic
 .vscode
+auto_examples
