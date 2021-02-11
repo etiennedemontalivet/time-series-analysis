@@ -176,7 +176,7 @@ docstring-min-length=-1
 max-line-length=100
 
 # Regexp for a line that is allowed to be longer than the limit.
-ignore-long-lines=^[\s\[\]\(\)\w]*(https?:\/\/)\S*$
+ignore-long-lines=.*<https?:\/\/.*>.*$
 
 # Allow the body of an if to be on the same line as the test if there is no
 # else.
