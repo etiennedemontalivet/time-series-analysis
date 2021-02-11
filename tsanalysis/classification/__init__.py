@@ -2,12 +2,12 @@
 Results
 =========
 
-The results from a classification are to be analyzed. 
+The results from a classification are to be analyzed.
 This module aims at easying the analysis of classification results. Two kinds of
 classification results are handled:
 
 - single prediciton
-- cross-validation 
+- cross-validation
 
 .. warning::
 

@@ -12,7 +12,7 @@ from sklearn import metrics
 
 
 class ClassificationResults:
-    """ Read classification results
+    """Read classification results
 
     All metrics are computed using sklearn metrics from `here <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`__.
 
@@ -72,7 +72,7 @@ class ClassificationResults:
 
     Notes
     -----
-    
+
     References
     ----------
 
