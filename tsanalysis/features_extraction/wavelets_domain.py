@@ -1,4 +1,7 @@
 """
+Wavelets Domain
+===============
+
 All functions below are vectorized, I.E, they can be applied on a whole DataFrame
 without having to apply to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
@@ -16,8 +19,8 @@ def wavelets_acc_coeffs_single_axis(X: pd.Series) -> pd.Series:
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
     It then extract features based on wavelets coefficients (squared sums and absolute sums)
 
-    Note:
-    -------
+    Notes
+    -----
     This is based on paper:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """
@@ -83,8 +86,8 @@ def wavelets_acc_coeffs(X: pd.DataFrame) -> pd.DataFrame:
     This decomposes the signal into five levels using Daubechies 3 and Daubechies 2.
     It then extract features based on wavelets coefficients (squared sums and absolute sums)
 
-    Note:
-    -------
+    Notes
+    -----
     This is based on paper:
     "Integrating Features for accelerometer-based activity recognition -- Erdas, Atasoy (2016)"
     """

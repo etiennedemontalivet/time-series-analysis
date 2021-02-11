@@ -12,10 +12,9 @@ from sklearn import metrics
 
 
 class ClassificationResults:
-    """
-    ClassificationResults
+    """ Read classification results
 
-    All metrics are computed using sklearn metrics from [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics)
+    All metrics are computed using sklearn metrics from `here <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`__.
 
     Parameters
     ----------
@@ -30,7 +29,6 @@ class ClassificationResults:
         a subset of labels. If None is given, those that appear at least once in
         y_true or y_pred are used in sorted order. The default is None.
 
-
     Attributes
     ----------
     n_classes_ : int
@@ -44,7 +42,7 @@ class ClassificationResults:
         In multilabel classification, this function computes subset accuracy:
         the set of labels predicted for a sample must exactly match the
         corresponding set of labels in y_true.
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score>`__.
 
     matthews_corrcoef_ : float
         number of training samples observed in each class.
@@ -53,13 +51,13 @@ class ClassificationResults:
         F1 score of the F1 scores of each class for the multiclass task.
         Calculate metrics for each label, and find their average weighted
         by support (the number of true instances for each label).
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score>`__.
 
     f1_micro_ : float
         F1 score of the F1 scores of each class for the multiclass task.
         Calculate metrics globally by counting the total true positives,
         false negatives and false positives.
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score>`__.
 
     tp_ : int
         Number of True Positives.
@@ -67,10 +65,16 @@ class ClassificationResults:
     fp_ : int
         Number of False Positives = number of misclassifications
 
-    confusion_matrix_ : ndarray of shape (n_classes_, n_classes_)
+    confusion_matrix_ : ndarray of shape (n_classes, n_classes)
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
+
+    Notes
+    -----
+    
+    References
+    ----------
 
     Examples
     --------
@@ -99,25 +103,9 @@ class ClassificationResults:
 
     >>> cr.plot_confusion_matrix(labels_names=["cat", "dog", "sphinx"])
     >>> # Plot a nice confusion matrix
-
     """
 
     def __init__(self, y_true: pd.Series, y_pred: pd.Series):
-        """
-        Returns a new instance of ClassificationResult based on given y_true and y_pred.
-
-        Parameters
-        ----------
-        y_true : pd.Series
-            Ground truth (correct) target values.
-        y_pred : pd.Series
-            Estimated targets as returned by a classifier.
-
-        Returns
-        -------
-        None.
-
-        """
         if not isinstance(y_pred, pd.Series):
             raise ValueError("y_pred has to be a pd.Series. Please convert it.")
         if not isinstance(y_true, pd.Series):

@@ -10,9 +10,9 @@ The framework is to be used for time series analysis.
 
 .. toctree::
    :maxdepth: 2
-   :caption: Contents:
 
    quickstart
-   auto_examples/index
+   gallery
+   modules/index
 
 

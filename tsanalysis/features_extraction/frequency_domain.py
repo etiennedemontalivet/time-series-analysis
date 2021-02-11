@@ -1,6 +1,8 @@
 """
-Frequency domain features module
+Frequency Domain
+================
 
+Frequency domain features module
 """
 from typing import Callable
 import numpy as np
@@ -116,8 +118,8 @@ def fd_max_argmax_energy_single_axis(
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
 
-    Note
-    ----
+    Notes
+    -----
     Filtering, skip_coefs and last_coeff are NOT used for energy computation.
 
     Returns
@@ -176,8 +178,8 @@ def fd_max_argmax_energy(
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
 
-    Note
-    ----
+    Notes
+    -----
     Filtering, skip_coefs and last_coeff are NOT used for energy computation.
 
     Returns

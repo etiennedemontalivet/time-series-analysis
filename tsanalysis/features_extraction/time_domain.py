@@ -1,4 +1,7 @@
 """
+Time Domain
+===============
+
 All functions below are vectorized, I.E, they can be applied on a whole DataFrame
 without having to apply to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
