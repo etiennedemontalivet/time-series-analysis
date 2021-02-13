@@ -92,10 +92,10 @@ setup(
         'pyyaml>=5.1.2',
         'matplotlib>=3.1.2',
         'scikit-optimize',
-        'plotly==4.3.0',
+        'plotly>=4.14.3',
         'imblearn==0.0',
-        'autopep8==1.5',
-        'jupytext==1.5.0',
+        'autopep8>=1.5',
+        'jupytext>=1.5.0',
         'jupyterlab'
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
