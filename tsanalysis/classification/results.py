@@ -106,11 +106,7 @@ class ClassificationResults:
     # Plot a nice confusion matrix
     """
 
-    def __init__(
-        self,
-        y_true: pd.Series,
-        y_pred: pd.Series,
-        labels: list=None):
+    def __init__(self, y_true: pd.Series, y_pred: pd.Series, labels: list = None):
         if not isinstance(y_pred, pd.Series):
             raise ValueError("y_pred has to be a pd.Series. Please convert it.")
         if not isinstance(y_true, pd.Series):
@@ -143,7 +139,9 @@ class ClassificationResults:
         self.accuracy_ = metrics.accuracy_score(self.y_true, self.y_pred)
 
         # Confusion matrix
-        self.confusion_matrix_ = metrics.confusion_matrix(self.y_true, self.y_pred, labels=labels)
+        self.confusion_matrix_ = metrics.confusion_matrix(
+            self.y_true, self.y_pred, labels=labels
+        )
 
         # true positives
         self.tp_ = np.trace(self.confusion_matrix_)
@@ -257,8 +255,8 @@ class ClassificationResults:
 
 
 class CrossValidationResults:
-    """ Analyze cross-validation results.
-    
+    """Analyze cross-validation results.
+
     This class should be used in conjunction with :class:`.ClassificationResults`
     whenever cross-validations are performed.
 
@@ -272,11 +270,11 @@ class CrossValidationResults:
     Attributes
     ----------
     history : List of ClassificationResults
-        The history of classifications that is passed as input parameter.       
+        The history of classifications that is passed as input parameter.
 
     misclassifieds : pd.DataFrame
         A dataframe containing the indexes of the misclassifieds with
-        statistics: occurence, predicted and true targets. 
+        statistics: occurence, predicted and true targets.
         **Note**: Number of splits in CV is directly linked to the
         misclassifieds occurences analysis.
 
@@ -344,9 +342,14 @@ class CrossValidationResults:
 
         # Compute mean of confusion matrices
         for i in range(len(self.history)):
-            if self.history[i].confusion_matrix_.shape[0] != self.history[0].confusion_matrix_.shape[0]:
-                raise ValueError("The confusion matrices in you history do not have the same size. Force \
-                    its size by using 'labels' in ClassificationResults instantiation.")
+            if (
+                self.history[i].confusion_matrix_.shape[0]
+                != self.history[0].confusion_matrix_.shape[0]
+            ):
+                raise ValueError(
+                    "The confusion matrices in you history do not have the same size. Force \
+                    its size by using 'labels' in ClassificationResults instantiation."
+                )
         cm_sum = self.history[0].confusion_matrix_ * 0
         for res in self.history:
             cm_sum += res.confusion_matrix_
@@ -390,12 +393,10 @@ class CrossValidationResults:
             index=values.index,
         )
 
-        percentage_error = (values / self.df.shape[0] * 100).rename(
-            "percentage_error"
-        )
+        percentage_error = (values / self.df.shape[0] * 100).rename("percentage_error")
         print(
-            "Note: percentage_error is per split. Multiply it by n_split " + \
-            "to have the full percentage."
+            "Note: percentage_error is per split. Multiply it by n_split "
+            + "to have the full percentage."
         )
         return pd.DataFrame(
             [values, percentage_error, true_targets, predicted_targets]
@@ -436,7 +437,7 @@ class CrossValidationResults:
             - p05 of scores
             - p95 of scores
             - mean score
-    
+
         If you are not familiar with percentiles, please visit
 
         Returns
@@ -540,8 +541,8 @@ class CrossValidationResults:
         None
 
         """
-        fig = self.df[["accuracy", "matthews_corrcoef", "f1_weighted", "f1_micro"]].plot(
-            title=figtitle
-            )
-        if pd.options.plotting.backend == 'plotly':
+        fig = self.df[
+            ["accuracy", "matthews_corrcoef", "f1_weighted", "f1_micro"]
+        ].plot(title=figtitle)
+        if pd.options.plotting.backend == "plotly":
             fig.show()

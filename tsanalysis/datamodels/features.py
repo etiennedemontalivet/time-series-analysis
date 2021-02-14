@@ -2,7 +2,7 @@
 This module defines the FeaturesDataset class
 """
 import os
-from typing import Optional, List
+from typing import  List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
@@ -39,7 +39,7 @@ class FeaturesDataset:
 
     scale : boolean, default=True
         If True, scaling is automatically applied on `X`. The fefault is True.
-    
+
     name : str, default=None
         The name of the features dataset. This is used when dumping
         the dataset. If None, 'unamed_features_set' is used. The default
@@ -72,9 +72,9 @@ class FeaturesDataset:
 
     >>> from tsanalysis.datamodels.features import FeaturesDataset
     >>> fds = FeaturesDataset(
-    >>>     X=X_df, 
-    >>>     y=y_df, 
-    >>>     name='iris_demo', 
+    >>>     X=X_df,
+    >>>     y=y_df,
+    >>>     name='iris_demo',
     >>>     target_labels={
     >>>        0:'setosa',
     >>>        1:'versicolor',
@@ -101,9 +101,9 @@ class FeaturesDataset:
         self,
         X: pd.DataFrame,
         y: pd.Series,
-        target_labels: dict=None,
-        scale: bool=True,
-        name: str=None,
+        target_labels: dict = None,
+        scale: bool = True,
+        name: str = None,
         scaler=None,
     ):
         if name is None:
@@ -200,10 +200,8 @@ class FeaturesDataset:
         FeaturesDataset
         """
         return FeaturesDataset(
-            X=self.X[columns],
-            y=self.y,
-            target_labels=self.target_labels_
-            )
+            X=self.X[columns], y=self.y, target_labels=self.target_labels_
+        )
 
     def get_subset_from_indexes(self, indexes: List[str]):
         """
@@ -219,12 +217,10 @@ class FeaturesDataset:
         FeaturesDataset
         """
         return FeaturesDataset(
-            X=self.X.loc[indexes],
-            y=self.y[indexes],
-            target_labels=self.target_labels_
-            )
+            X=self.X.loc[indexes], y=self.y[indexes], target_labels=self.target_labels_
+        )
 
-    def get_subset_from_labels(self, labels, suffix: str=None):
+    def get_subset_from_labels(self, labels, suffix: str = None):
         """
         Extract a features dataset including only the asked label(s).
 
@@ -255,9 +251,9 @@ class FeaturesDataset:
 
         return FeaturesDataset(
             X=self.X.loc[new_indexes],
-            y=self.y.loc[new_indexes], 
+            y=self.y.loc[new_indexes],
             name=new_name,
-            target_labels=self.target_labels_
+            target_labels=self.target_labels_,
         )
 
     def dump(self, directory="./"):
@@ -277,26 +273,21 @@ class FeaturesDataset:
         if not Path(directory).exists():
             print(f"Creating directory {directory}")
             os.makedirs(directory, exist_ok=True)
-        X_dump_path = Path(directory, self.name.split('\\')[-1] + ".features.parquet")
+        X_dump_path = Path(directory, self.name.split("\\")[-1] + ".features.parquet")
         print(f"Saving the FeaturesDataset  into '{X_dump_path}'")
         tmp = self.X.copy()
-        tmp['label'] = self.y
+        tmp["label"] = self.y
         table = pa.Table.from_pandas(tmp)
         pq.write_table(table, X_dump_path)
         if self.target_labels_ is not None:
             np.save(
-                file=(self.name + '.labels.npy'),
+                file=(self.name + ".labels.npy"),
                 arr=np.array(self.target_labels_),
-                allow_pickle=True
-                )
+                allow_pickle=True,
+            )
 
     @classmethod
-    def load(
-        cls,
-        dataset_name,
-        directory="./",
-        verbose:int=1
-    ):
+    def load(cls, dataset_name, directory="./", verbose: int = 1):
         """
         Load features based on dataset name from a parquet file.
 
@@ -325,8 +316,8 @@ class FeaturesDataset:
                 print(f"Loading  FeaturesDataset from '{X_load_path}'")
             tmp = pq.read_table(X_load_path)
             tmp = tmp.to_pandas()
-            X = tmp.drop(columns = 'label')
-            y = tmp['label']
+            X = tmp.drop(columns="label")
+            y = tmp["label"]
             labels_file = Path(directory, dataset_name + ".labels.npy")
             if os.path.isfile(labels_file):
                 target_labels = np.load(labels_file, allow_pickle=True).item()
@@ -334,15 +325,10 @@ class FeaturesDataset:
                 target_labels = None
         else:
             raise FileNotFoundError(f"File {X_load_path} does not exist")
-        
+
         return cls(X, y, name=dataset_name, target_labels=target_labels)
 
-    def plot_distribution(
-        self,
-        feature_name: str,
-        title: str=None,
-        bin_size = 1.
-    ):
+    def plot_distribution(self, feature_name: str, title: str = None, bin_size=1.0):
         """
         Plot distribution of a specific feature
 
@@ -366,22 +352,17 @@ class FeaturesDataset:
             title = "Distribution of " + str(feature_name)
 
         # Group data together
-        hist_data = [ self.X[feature_name][self.y == iC] for iC in self.classes_ ]
+        hist_data = [self.X[feature_name][self.y == iC] for iC in self.classes_]
         if self.target_labels_ is not None:
-            group_labels = [ self.target_labels_[iC] for iC in self.classes_ ]
+            group_labels = [self.target_labels_[iC] for iC in self.classes_]
         else:
-            group_labels = [ str(iC) for iC in self.classes_ ]
+            group_labels = [str(iC) for iC in self.classes_]
 
         # Create distplot with custom bin_size
         fig = ff.create_distplot(
-            hist_data,
-            group_labels,
-            bin_size=bin_size,
-            histnorm='probability')
-        fig.update_layout(
-            title=title,
-            title_x=0.5
+            hist_data, group_labels, bin_size=bin_size, histnorm="probability"
         )
+        fig.update_layout(title=title, title_x=0.5)
         fig.show()
 
 

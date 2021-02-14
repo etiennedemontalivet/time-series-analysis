@@ -16,4 +16,7 @@ classification results are handled:
 
 """
 
-from tsanalysis.classification.results import ClassificationResults, CrossValidationResults
+from tsanalysis.classification.results import (
+    ClassificationResults,
+    CrossValidationResults,
+)
