@@ -112,8 +112,9 @@ setup(
             'black',
             'sphinx>=2.2',
             'invoke>=1.3',
+            'pyarrow',
             'pytest',
-            'pytest-coverage'
+            'pytest-coverage',
         ],
     },
     # If there are data files included in your packages that need to be
