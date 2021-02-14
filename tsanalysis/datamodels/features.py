@@ -6,9 +6,12 @@ from typing import Optional, List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler
 import pyarrow.parquet as pq
 import pyarrow as pa
+import plotly.figure_factory as ff
+
 
 class FeaturesDataset:
     """
@@ -28,6 +31,11 @@ class FeaturesDataset:
 
     y : pd.Series
         A serie containing the labels with the ids of events as indexes.
+
+    target_labels : dict, default=None
+        A dictionary containing the literal target labels with corresponding
+        integer keys. If None, plots are displayed with integer values. The default
+        is None.
 
     scale : boolean, default=True
         If True, scaling is automatically applied on `X`. The fefault is True.
@@ -62,9 +70,30 @@ class FeaturesDataset:
     >>> from tsanalysis.datasets import make_iris_data
     >>> X_df, y_df = make_iris_data()
 
-    >>> from sklearn.ensemble import RandomForestClassifier
-    >>> from tsanalysis.classification.results import ClassificationResults, CrossValidationResults
-    >>> from sklearn.model_selection import RepeatedStratifiedKFold
+    >>> from tsanalysis.datamodels.features import FeaturesDataset
+    >>> fds = FeaturesDataset(
+    >>>     X=X_df, 
+    >>>     y=y_df, 
+    >>>     name='iris_demo', 
+    >>>     target_labels={
+    >>>        0:'setosa',
+    >>>        1:'versicolor',
+    >>>        2:'virginica'
+    >>>     })
+
+    >>> fds.dump()
+
+    >>> fds_bis = FeaturesDataset.load('iris_demo')
+
+    >>> fds_bis.target_labels_
+
+    >>> fds_bis.classes_
+
+    >>> fds_bis.index
+
+    >>> fds_bis.name
+
+    >>> fds_bis.plot_distribution(feature_name='sepal length (cm)')
 
     """
 
@@ -72,6 +101,7 @@ class FeaturesDataset:
         self,
         X: pd.DataFrame,
         y: pd.Series,
+        target_labels: dict=None,
         scale: bool=True,
         name: str=None,
         scaler=None,
@@ -82,6 +112,8 @@ class FeaturesDataset:
             self.name = name
         self.X = X.reindex(y.index)
         self.y = y
+        self.classes_ = self.y.unique().tolist()
+        self.target_labels_ = target_labels
 
         # Remove duplicates
         if any(self.X.index.duplicated(keep="last")):
@@ -167,7 +199,11 @@ class FeaturesDataset:
         -------
         FeaturesDataset
         """
-        return FeaturesDataset(X=self.X[columns], y=self.y)
+        return FeaturesDataset(
+            X=self.X[columns],
+            y=self.y,
+            target_labels=self.target_labels_
+            )
 
     def get_subset_from_indexes(self, indexes: List[str]):
         """
@@ -182,7 +218,11 @@ class FeaturesDataset:
         -------
         FeaturesDataset
         """
-        return FeaturesDataset(X=self.X.loc[indexes], y=self.y[indexes])
+        return FeaturesDataset(
+            X=self.X.loc[indexes],
+            y=self.y[indexes],
+            target_labels=self.target_labels_
+            )
 
     def get_subset_from_labels(self, labels, suffix: str=None):
         """
@@ -211,10 +251,13 @@ class FeaturesDataset:
         else:
             new_name = self.name + suffix
 
-        new_indexes = [x for x in self.X.index if self.y.loc[x] in label]
+        new_indexes = [x for x in self.X.index if self.y.loc[x] in labels]
 
         return FeaturesDataset(
-            X=self.X.loc[new_indexes], y=self.y.loc[new_indexes], name=new_name
+            X=self.X.loc[new_indexes],
+            y=self.y.loc[new_indexes], 
+            name=new_name,
+            target_labels=self.target_labels_
         )
 
     def dump(self, directory="./"):
@@ -240,9 +283,20 @@ class FeaturesDataset:
         tmp['label'] = self.y
         table = pa.Table.from_pandas(tmp)
         pq.write_table(table, X_dump_path)
+        if self.target_labels_ is not None:
+            np.save(
+                file=(self.name + '.labels.npy'),
+                arr=np.array(self.target_labels_),
+                allow_pickle=True
+                )
 
     @classmethod
-    def load(cls, dataset_name, directory="./", debug:int=1):
+    def load(
+        cls,
+        dataset_name,
+        directory="./",
+        verbose:int=1
+    ):
         """
         Load features based on dataset name from a parquet file.
 
@@ -273,10 +327,62 @@ class FeaturesDataset:
             tmp = tmp.to_pandas()
             X = tmp.drop(columns = 'label')
             y = tmp['label']
+            labels_file = Path(directory, dataset_name + ".labels.npy")
+            if os.path.isfile(labels_file):
+                target_labels = np.load(labels_file, allow_pickle=True).item()
+            else:
+                target_labels = None
         else:
             raise FileNotFoundError(f"File {X_load_path} does not exist")
         
-        return cls(X, y, name=dataset_name)
+        return cls(X, y, name=dataset_name, target_labels=target_labels)
+
+    def plot_distribution(
+        self,
+        feature_name: str,
+        title: str=None,
+        bin_size = 1.
+    ):
+        """
+        Plot distribution of a specific feature
+
+        Parameters
+        ----------
+        feature_name : str
+            The feature to be plotted.
+
+        title : str, default=None
+            Figure title. If None, the feature name is used. The default is None.
+
+        bin_size : list of float or float, default=1.
+            Size of histogram bins. The default is 1..
+
+        Returns
+        -------
+        None
+
+        """
+        if title is None:
+            title = "Distribution of " + str(feature_name)
+
+        # Group data together
+        hist_data = [ self.X[feature_name][self.y == iC] for iC in self.classes_ ]
+        if self.target_labels_ is not None:
+            group_labels = [ self.target_labels_[iC] for iC in self.classes_ ]
+        else:
+            group_labels = [ str(iC) for iC in self.classes_ ]
+
+        # Create distplot with custom bin_size
+        fig = ff.create_distplot(
+            hist_data,
+            group_labels,
+            bin_size=bin_size,
+            histnorm='probability')
+        fig.update_layout(
+            title=title,
+            title_x=0.5
+        )
+        fig.show()
 
 
 def features_concat(features: List[FeaturesDataset], name: str = None):
