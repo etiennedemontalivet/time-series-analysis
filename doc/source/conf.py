@@ -10,15 +10,15 @@
 # add these directories to sys.path here. If the directory is relative to the
 # documentation root, use os.path.abspath to make it absolute, like shown here.
 #
-# import os
-# import sys
-# sys.path.insert(0, os.path.abspath('.'))
+import os
+import sys
+sys.path.insert(0, os.path.abspath('../../tsanalysis'))
 
 
 # -- Project information -----------------------------------------------------
 
-project = 'ai-framework'
-copyright = '2020, Etienne de Montalivet'
+project = 'tsanalysis'
+copyright = '2021, ml-ngnm'
 author = 'Etienne de Montalivet'
 
 # The full version, including alpha/beta/rc tags
@@ -30,8 +30,45 @@ release = '0.0.1'
 # Add any Sphinx extension module names here, as strings. They can be
 # extensions coming with Sphinx (named 'sphinx.ext.*') or your custom
 # ones.
+# extensions = [
+#     'sphinx.ext.napoleon',
+#     'sphinx.ext.autodoc',
+#     'numpydoc',
+#     'sphinx.ext.autosummary',  # Create neat summary tables for modules/classes/methods etc
+#     'sphinx.ext.intersphinx',  # Link to other project's documentation (see mapping below)
+#     #'sphinx_autodoc_typehints',  # Automatically document param types (less noise in class signature)
+#     #'sphinx.ext.linkcode',
+#     'sphinx_rtd_theme',
+#     'sphinx_gallery.gen_gallery',
+# ]
 extensions = [
+    'sphinx.ext.autodoc', 'sphinx.ext.autosummary',
+    'numpydoc',
+    #'sphinx.ext.linkcode', 
+    'sphinx.ext.doctest',
+    'sphinx.ext.intersphinx',
+    'sphinx.ext.imgconverter',
+    'sphinx_gallery.gen_gallery',
+    # 'sphinx_issues',
+#    'add_toctree_functions',
+    'sphinx-prompt',
 ]
+
+# numpydoc_show_class_members = False
+numpydoc_class_members_toctree = False
+
+autodoc_default_options = {
+    'members': True,
+    'inherited-members': True
+}
+
+templates_path = ['templates']
+
+# generate autosummary even if no references
+autosummary_generate = True
+autosummary_imported_members = True
+
+add_function_parentheses = False
 
 # Add any paths that contain templates here, relative to this directory.
 templates_path = ['_templates']
@@ -40,16 +77,24 @@ templates_path = ['_templates']
 # directories to ignore when looking for source files.
 # This pattern also affects html_static_path and html_extra_path.
 exclude_patterns = []
-
+pygments_style = 'sphinx'
 
 # -- Options for HTML output -------------------------------------------------
 
 # The theme to use for HTML and HTML Help pages.  See the documentation for
 # a list of builtin themes.
 #
-html_theme = 'alabaster'
-
+# html_theme = 'pydata_sphinx_theme' # sphinx_rtd_theme'
+html_theme_path = ['themes']
+html_theme = 'scikit-learn-modern'
+# html4_writer=True
+html_short_title = 'tsanalysis'
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
 # so a file named "default.css" will overwrite the builtin "default.css".
 html_static_path = ['_static']
+
+sphinx_gallery_conf = {
+    'examples_dirs': '../examples',   # path to example scripts
+    'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+}

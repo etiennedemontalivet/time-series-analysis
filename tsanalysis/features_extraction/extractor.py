@@ -1,14 +1,17 @@
 """
+Extractor
+===============
+
 This module defines the complete features extraction.
 """
 from typing import Callable
 from typing import List
 import pandas as pd
 
-from cepstrum_domain import extract_cepd_features
-from time_domain import extract_td_features
-from wavelets_domain import extract_wd_features
-from frequency_domain import extract_fd_features
+from features_extraction.cepstrum_domain import extract_cepd_features
+from features_extraction.time_domain import extract_td_features
+from features_extraction.wavelets_domain import extract_wd_features
+from features_extraction.frequency_domain import extract_fd_features
 
 # pylint: disable=too-many-arguments,dangerous-default-value
 def extract_all_features(

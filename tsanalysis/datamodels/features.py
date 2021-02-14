@@ -2,22 +2,106 @@
 This module defines the FeaturesDataset class
 """
 import os
-from typing import Optional, List
+from typing import  List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
+import numpy as np
 from sklearn.preprocessing import StandardScaler
+import pyarrow.parquet as pq
+import pyarrow as pa
+import plotly.figure_factory as ff
 
 
 class FeaturesDataset:
     """
-    TODO
+    This class aims at easying the features analysis. The object contains
+    the common `X` and `y`. The typical operations are:
+
+    - dump / load a set of features
+    - extract a subset of features (based on features, indexes or labels)
+    - plot a specific feature distribution per label
+    - scale a set of feature
+
+    Parameters
+    ----------
+    X: pd.DataFrame
+        A dataframe of shape (n_samples, n_features). Columns names have to be
+        the features. Rows names the ids of events (typically filenames).
+
+    y : pd.Series
+        A serie containing the labels with the ids of events as indexes.
+
+    target_labels : dict, default=None
+        A dictionary containing the literal target labels with corresponding
+        integer keys. If None, plots are displayed with integer values. The default
+        is None.
+
+    scale : boolean, default=True
+        If True, scaling is automatically applied on `X`. The fefault is True.
+
+    name : str, default=None
+        The name of the features dataset. This is used when dumping
+        the dataset. If None, 'unamed_features_set' is used. The default
+        is None.
+
+    scaler : sklearn scaler, default=StandardScaler()
+        The scaler to be used for scaling the features. It could
+        be any scaler from `sklearn preprocessing <https://scikit-learn.org/stable/modules/preprocessing.html#preprocessing-scaler>`__.
+        You could write a custom scaler class by writing custom `fit`
+        and `transform` methods. The default is `StandardScaler()`
+
+    Attributes
+    ----------
+    X_scaled : pd.DataFrame
+
+    index : pd.Index
+
+    shape : tuple
+
+    Notes
+    -----
+
+    References
+    ----------
+
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_iris_data
+    >>> X_df, y_df = make_iris_data()
+
+    >>> from tsanalysis.datamodels.features import FeaturesDataset
+    >>> fds = FeaturesDataset(
+    >>>     X=X_df,
+    >>>     y=y_df,
+    >>>     name='iris_demo',
+    >>>     target_labels={
+    >>>        0:'setosa',
+    >>>        1:'versicolor',
+    >>>        2:'virginica'
+    >>>     })
+
+    >>> fds.dump()
+
+    >>> fds_bis = FeaturesDataset.load('iris_demo')
+
+    >>> fds_bis.target_labels_
+
+    >>> fds_bis.classes_
+
+    >>> fds_bis.index
+
+    >>> fds_bis.name
+
+    >>> fds_bis.plot_distribution(feature_name='sepal length (cm)')
+
     """
 
     def __init__(
         self,
         X: pd.DataFrame,
         y: pd.Series,
+        target_labels: dict = None,
         scale: bool = True,
         name: str = None,
         scaler=None,
@@ -28,6 +112,8 @@ class FeaturesDataset:
             self.name = name
         self.X = X.reindex(y.index)
         self.y = y
+        self.classes_ = self.y.unique().tolist()
+        self.target_labels_ = target_labels
 
         # Remove duplicates
         if any(self.X.index.duplicated(keep="last")):
@@ -47,7 +133,7 @@ class FeaturesDataset:
     @property
     def shape(self):
         """
-        Get X Shape.
+        X Shape.
 
         Returns
         -------
@@ -60,7 +146,7 @@ class FeaturesDataset:
     @property
     def index(self):
         """
-        Get X indexes.
+        X indexes.
 
         Returns
         -------
@@ -73,7 +159,8 @@ class FeaturesDataset:
     @property
     def X_scaled(self):
         """
-        Get X scaled
+        The scaled features. :meth:`scale` has to be called before (if not called
+        automatically at the init).
 
         Returns
         -------
@@ -90,7 +177,8 @@ class FeaturesDataset:
 
     def scale(self):
         """
-        Scale the features
+        Scale the features using the `scaler`. By default, this method is
+        automatically called at init.
         """
         self.scaler.fit(self.X)
         X_scaled = self.scaler.transform(self.X)
@@ -98,74 +186,184 @@ class FeaturesDataset:
             X_scaled, index=self.X.index, columns=self.X.columns
         )
 
-    def subset(self, columns: List[str]):
+    def get_subset_from_features(self, columns: List[str]):
         """
-        Return a subset of the features dataset
-        """
-        return FeaturesDataset(X=self.X[columns], y=self.y)
+        Extract a sub-features dataset.
 
-    def get_subset_from_label(self, label, suffix: Optional[str] = None):
+        Parameters
+        ----------
+        columns : list of str
+            The features to extract.
+
+        Returns
+        -------
+        FeaturesDataset
         """
-        Return a features dataset including only the asked label.
+        return FeaturesDataset(
+            X=self.X[columns], y=self.y, target_labels=self.target_labels_
+        )
+
+    def get_subset_from_indexes(self, indexes: List[str]):
         """
-        if not isinstance(label, (int, list)):
-            raise ValueError("Argument label should be an int or a list of int")
-        if isinstance(label, list):
-            for i in label:
-                if (int(i) < 0) or (int(i) > 100):
-                    raise ValueError(
-                        "Argument label when a list should contain int from 0..100 in list."
-                    )
+        Extract a features dataset based on subset of indexes.
+
+        Parameters
+        ----------
+        indexes : list of str
+            The indexes to extract.
+
+        Returns
+        -------
+        FeaturesDataset
+        """
+        return FeaturesDataset(
+            X=self.X.loc[indexes], y=self.y[indexes], target_labels=self.target_labels_
+        )
+
+    def get_subset_from_labels(self, labels, suffix: str = None):
+        """
+        Extract a features dataset including only the asked label(s).
+
+        Parameters
+        ----------
+        labels : list of int
+            The label to extract.
+
+        suffix : str, default=None
+            The suffix that is added to the name of the new FeaturesDataset.
+            If None, the `labels` is added to the current name. The default
+            is None
+
+        Returns
+        -------
+        FeaturesDataset
+
+        """
+        if not isinstance(labels, list):
+            raise ValueError("Argument label should be a list of int")
 
         if suffix is None:
-            new_name = self.name + "_" + str(label)
+            new_name = self.name + "_" + str(labels)
         else:
             new_name = self.name + suffix
 
-        if isinstance(label, list):
-            new_filenames = [x for x in self.X.index if self.y.loc[x] in label]
-        elif isinstance(label, int):
-            new_filenames = [x for x in self.X.index if self.y.loc[x] == label]
+        new_indexes = [x for x in self.X.index if self.y.loc[x] in labels]
 
         return FeaturesDataset(
-            X=self.X.loc[new_filenames], y=self.y.loc[new_filenames], name=new_name
+            X=self.X.loc[new_indexes],
+            y=self.y.loc[new_indexes],
+            name=new_name,
+            target_labels=self.target_labels_,
         )
 
     def dump(self, directory="./"):
         """
         Dump data into specified directory.
+
+        Parameters
+        ----------
+        directory : str, default="./"
+            The destination directory of the features dataset parquet file.
+
+        Returns
+        -------
+        None
         """
         # If directory did not exist we create it
         if not Path(directory).exists():
             print(f"Creating directory {directory}")
             os.makedirs(directory, exist_ok=True)
-        X_dump_path = Path(directory, self.name + "_features_X.pkl")
-        y_dump_path = Path(directory, self.name + "_features_y.pkl")
-        print(f"Saving X features into '{X_dump_path}'")
-        print(f"Saving y features into '{y_dump_path}'")
-        self.X.to_pickle(X_dump_path)
-        self.y.to_pickle(y_dump_path)
+        X_dump_path = Path(directory, self.name.split("\\")[-1] + ".features.parquet")
+        print(f"Saving the FeaturesDataset  into '{X_dump_path}'")
+        tmp = self.X.copy()
+        tmp["label"] = self.y
+        table = pa.Table.from_pandas(tmp)
+        pq.write_table(table, X_dump_path)
+        if self.target_labels_ is not None:
+            np.save(
+                file=(self.name + ".labels.npy"),
+                arr=np.array(self.target_labels_),
+                allow_pickle=True,
+            )
 
     @classmethod
-    def load(cls, dataset_name, directory="./", debug: bool = True):
+    def load(cls, dataset_name, directory="./", verbose: int = 1):
         """
-        Load features based on dataset name
+        Load features based on dataset name from a parquet file.
+
+        .. warning::
+            The `dataset_name` parameter has to not include the extension: '.features.parquet'.
+
+        Parameters
+        ----------
+        dataset_name : str
+            The dataset name to load without the extension.
+
+        directory : str, default="./"
+            The directory from which to load the dataset. The default is "./".
+
+        verbose : int, default=1
+            Verbosity level to display information. The default is 1.
+
+        Returns
+        -------
+        FeaturesDataset
+
         """
-        X_load_path = Path(directory, dataset_name + "_features_X.pkl")
-        y_load_path = Path(directory, dataset_name + "_features_y.pkl")
+        X_load_path = Path(directory, dataset_name + ".features.parquet")
         if X_load_path.exists():
-            if debug is True:
-                print(f"Loading X features from '{X_load_path}'")
-            X = pd.read_pickle(X_load_path)
+            if verbose > 0:
+                print(f"Loading  FeaturesDataset from '{X_load_path}'")
+            tmp = pq.read_table(X_load_path)
+            tmp = tmp.to_pandas()
+            X = tmp.drop(columns="label")
+            y = tmp["label"]
+            labels_file = Path(directory, dataset_name + ".labels.npy")
+            if os.path.isfile(labels_file):
+                target_labels = np.load(labels_file, allow_pickle=True).item()
+            else:
+                target_labels = None
         else:
             raise FileNotFoundError(f"File {X_load_path} does not exist")
-        if y_load_path.exists():
-            if debug is True:
-                print(f"Loading y features from '{y_load_path}'")
-            y = pd.read_pickle(y_load_path)
+
+        return cls(X, y, name=dataset_name, target_labels=target_labels)
+
+    def plot_distribution(self, feature_name: str, title: str = None, bin_size=1.0):
+        """
+        Plot distribution of a specific feature
+
+        Parameters
+        ----------
+        feature_name : str
+            The feature to be plotted.
+
+        title : str, default=None
+            Figure title. If None, the feature name is used. The default is None.
+
+        bin_size : list of float or float, default=1.
+            Size of histogram bins. The default is 1..
+
+        Returns
+        -------
+        None
+
+        """
+        if title is None:
+            title = "Distribution of " + str(feature_name)
+
+        # Group data together
+        hist_data = [self.X[feature_name][self.y == iC] for iC in self.classes_]
+        if self.target_labels_ is not None:
+            group_labels = [self.target_labels_[iC] for iC in self.classes_]
         else:
-            raise FileNotFoundError(f"File {y_load_path} does not exist")
-        return cls(X, y, name=dataset_name)
+            group_labels = [str(iC) for iC in self.classes_]
+
+        # Create distplot with custom bin_size
+        fig = ff.create_distplot(
+            hist_data, group_labels, bin_size=bin_size, histnorm="probability"
+        )
+        fig.update_layout(title=title, title_x=0.5)
+        fig.show()
 
 
 def features_concat(features: List[FeaturesDataset], name: str = None):

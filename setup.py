@@ -92,11 +92,12 @@ setup(
         'pyyaml>=5.1.2',
         'matplotlib>=3.1.2',
         'scikit-optimize',
-        'plotly==4.3.0',
+        'plotly>=4.14.3',
         'imblearn==0.0',
-        'autopep8==1.5',
-        'jupytext==1.5.0',
-        'jupyterlab'
+        'autopep8>=1.5',
+        'jupytext>=1.5.0',
+        'jupyterlab',
+        'pyarrow>=2.0',
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -113,7 +114,7 @@ setup(
             'sphinx>=2.2',
             'invoke>=1.3',
             'pytest',
-            'pytest-coverage'
+            'pytest-coverage',
         ],
     },
     # If there are data files included in your packages that need to be

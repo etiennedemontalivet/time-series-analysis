@@ -24,6 +24,8 @@
 import numpy as np
 import pandas as pd
 
+pd.options.plotting.backend = 'plotly' # optional
+
 # ### Context
 
 # We use iris and breast_cancer datasets here. We'll do a simple classificiation and explore the results through the `CrossValidationResults` class.
@@ -32,21 +34,8 @@ import pandas as pd
 
 # #### Load iris
 
-from sklearn.datasets import load_iris
-
-data_iris = load_iris()
-
-X, y = data_iris.data, data_iris.target
-
-# Creating dataframe and serie with fake filenames
-files = [ "file_" + str(i) for i in range(len(y))]
-y_df = pd.Series(
-    data=y,
-    index=files
-)
-X_df = pd.DataFrame(
-    data=X,
-    index=files)
+from tsanalysis.datasets import make_iris_data
+X_df, y_df = make_iris_data()
 
 # #### Cross-val using `CrossValidationResults`
 
@@ -69,19 +58,13 @@ for train_index, test_index in rskf.split(X_df, y_df):
 
 cv_res = CrossValidationResults(results)
 
-cv_res
-
 cv_res.confusion_matrix_mean
 
-cv_res.plot_confusion_matrix_mean(data_iris.target_names)
+cv_res.plot_confusion_matrix_mean(['setosa', 'versicolor', 'virginica'])
 
 cv_res.metrics
 
 cv_res.plot_metrics()
-
-cv_res.plot_std()
-
-cv_res.plot_tp()
 
 cv_res.misclassified
 
@@ -129,8 +112,6 @@ cv_res.metrics
 
 cv_res.plot_metrics()
 
-cv_res.plot_std()
-
-cv_res.plot_tp()
-
 cv_res.misclassified
+
+

@@ -12,10 +12,9 @@ from sklearn import metrics
 
 
 class ClassificationResults:
-    """
-    ClassificationResults
+    """Analyze single classification results
 
-    All metrics are computed using sklearn metrics from [here](https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics)
+    All metrics are computed using sklearn metrics from `here <https://scikit-learn.org/stable/modules/classes.html#module-sklearn.metrics>`__.
 
     Parameters
     ----------
@@ -25,10 +24,10 @@ class ClassificationResults:
     y_pred : pd.Series
         Estimated targets as returned by a classifier.
 
-    labels_name : list, optional
+    labels : array-like of shape (n_classes), default=None
         List of labels to index the matrix. This may be used to reorder or select
         a subset of labels. If None is given, those that appear at least once in
-        y_true or y_pred are used in sorted order. The default is None.
+        y_true or y_pred are used in sorted order.
 
 
     Attributes
@@ -44,7 +43,7 @@ class ClassificationResults:
         In multilabel classification, this function computes subset accuracy:
         the set of labels predicted for a sample must exactly match the
         corresponding set of labels in y_true.
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.accuracy_score.html#sklearn.metrics.accuracy_score>`__.
 
     matthews_corrcoef_ : float
         number of training samples observed in each class.
@@ -53,13 +52,13 @@ class ClassificationResults:
         F1 score of the F1 scores of each class for the multiclass task.
         Calculate metrics for each label, and find their average weighted
         by support (the number of true instances for each label).
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score>`__.
 
     f1_micro_ : float
         F1 score of the F1 scores of each class for the multiclass task.
         Calculate metrics globally by counting the total true positives,
         false negatives and false positives.
-        See more details [here](https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score)
+        See more details `here <https://scikit-learn.org/stable/modules/generated/sklearn.metrics.f1_score.html#sklearn.metrics.f1_score>`__.
 
     tp_ : int
         Number of True Positives.
@@ -67,15 +66,21 @@ class ClassificationResults:
     fp_ : int
         Number of False Positives = number of misclassifications
 
-    confusion_matrix_ : ndarray of shape (n_classes_, n_classes_)
+    confusion_matrix_ : ndarray of shape (n_classes, n_classes)
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
 
+    Notes
+    -----
+
+    References
+    ----------
+
     Examples
     --------
     >>> import pandas as pd
-    >>> from tsanalysis.classification.results import ClassificationResults
+    >>> from tsanalysis.classification import ClassificationResults
     >>> y_true = pd.Series( data=[2, 0, 2, 2, 0, 1], index=['f0', 'f1', 'f3', 'f4', 'f5', 'f6'] )
     >>> y_pred = pd.Series( data=[0, 0, 2, 2, 0, 2], index=['f0', 'f1', 'f3', 'f4', 'f5', 'f6'] )
     >>> cr = ClassificationResults(y_true, y_pred)
@@ -98,26 +103,10 @@ class ClassificationResults:
     Index(['f0', 'f6'], dtype='object')
 
     >>> cr.plot_confusion_matrix(labels_names=["cat", "dog", "sphinx"])
-    >>> # Plot a nice confusion matrix
-
+    # Plot a nice confusion matrix
     """
 
-    def __init__(self, y_true: pd.Series, y_pred: pd.Series):
-        """
-        Returns a new instance of ClassificationResult based on given y_true and y_pred.
-
-        Parameters
-        ----------
-        y_true : pd.Series
-            Ground truth (correct) target values.
-        y_pred : pd.Series
-            Estimated targets as returned by a classifier.
-
-        Returns
-        -------
-        None.
-
-        """
+    def __init__(self, y_true: pd.Series, y_pred: pd.Series, labels: list = None):
         if not isinstance(y_pred, pd.Series):
             raise ValueError("y_pred has to be a pd.Series. Please convert it.")
         if not isinstance(y_true, pd.Series):
@@ -150,7 +139,9 @@ class ClassificationResults:
         self.accuracy_ = metrics.accuracy_score(self.y_true, self.y_pred)
 
         # Confusion matrix
-        self.confusion_matrix_ = metrics.confusion_matrix(self.y_true, self.y_pred)
+        self.confusion_matrix_ = metrics.confusion_matrix(
+            self.y_true, self.y_pred, labels=labels
+        )
 
         # true positives
         self.tp_ = np.trace(self.confusion_matrix_)
@@ -191,11 +182,11 @@ class ClassificationResults:
         ----------
         labels_names : list, optional
             The names of the labels. The default is None.
-        title : TYPE, optional
+        title : str, optional
             Figure's title. The default is 'Confusion matrix'.
-        cmap : TYPE, optional
+        cmap : str, optional
             cmap to use. If None, 'Blues' is used. The default is None.
-        cbar : TYPE, optional
+        cbar : boolean, optional
             If true, it plots the colorbar too. The default is True.
 
         Returns
@@ -264,22 +255,81 @@ class ClassificationResults:
 
 
 class CrossValidationResults:
-    """
-    This class should be used in conjunction with ClassificationResults whenever
-    cross-validations are performed.
+    """Analyze cross-validation results.
+
+    This class should be used in conjunction with :class:`.ClassificationResults`
+    whenever cross-validations are performed.
+
+    Parameters
+    ----------
+    results: List of ClassificationResults
+
+    select_by : str, optional
+        Metric to use to sort the results. The default is "matthews_corrcoef".
+
+    Attributes
+    ----------
+    history : List of ClassificationResults
+        The history of classifications that is passed as input parameter.
+
+    misclassifieds : pd.DataFrame
+        A dataframe containing the indexes of the misclassifieds with
+        statistics: occurence, predicted and true targets.
+        **Note**: Number of splits in CV is directly linked to the
+        misclassifieds occurences analysis.
+
+    metrics : dict
+        Aggregated metrics of CV.
+
+    confusion_matrix_mean : ndarray of shape (n_classes, n_classes)
+        Confusion matrix whose i-th row and j-th column entry indicates the
+        number of samples with true label being i-th class and prediced label
+        being j-th class.
+
+    Notes
+    -----
+
+    References
+    ----------
+
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_iris_data
+    >>> X_df, y_df = make_iris_data()
+
+    >>> from sklearn.ensemble import RandomForestClassifier
+    >>> from tsanalysis.classification.results import ClassificationResults, CrossValidationResults
+    >>> from sklearn.model_selection import RepeatedStratifiedKFold
+
+    >>> rskf = RepeatedStratifiedKFold(n_splits=2, n_repeats=5,random_state=42)
+    >>> results = []
+    >>> for train_index, test_index in rskf.split(X_df, y_df):
+    >>>     X_train, X_test = X_df.iloc[train_index], X_df.iloc[test_index]
+    >>>     y_train, y_test = y_df[train_index], y_df[test_index]
+    >>>     clf = RandomForestClassifier(max_depth=2, random_state=0)
+    >>>     clf.fit(X_train, y_train)
+    >>>     y_pred = pd.Series(
+    >>>         data=clf.predict(X_test),
+    >>>         index=y_test.index
+    >>>     )
+    >>>     results.append(ClassificationResults(y_true=y_test, y_pred=y_pred))
+    >>> cv_res = CrossValidationResults(results)
+
+    >>> cv_res.confusion_matrix_mean
+
+    >>> cv_res.metrics
+
+    >>> cv_res.misclassified
+
+    >>> cv_res.plot_confusion_matrix_mean(['setosa', 'versicolor', 'virginica'])
+
+    >>> cv_res.plot_metrics()
+
     """
 
     def __init__(
         self, results: List[ClassificationResults], select_by="matthews_corrcoef"
     ):
-        """
-        Return a new instance of CrossValidationdf based on a given list of results.
-        select_by can take on the following values:
-          - matthews_corrcoef
-          - accuracy
-          - f1
-        aggregator must be a callable that can aggregate the dataframe of df into a series of values
-        """
         self.history = results
         loc_metrics, misclassified = zip(
             *[(res.metrics, res.misclassified) for res in results]
@@ -291,6 +341,15 @@ class CrossValidationResults:
         self._mean = self.df.mean()
 
         # Compute mean of confusion matrices
+        for i in range(len(self.history)):
+            if (
+                self.history[i].confusion_matrix_.shape[0]
+                != self.history[0].confusion_matrix_.shape[0]
+            ):
+                raise ValueError(
+                    "The confusion matrices in you history do not have the same size. Force \
+                    its size by using 'labels' in ClassificationResults instantiation."
+                )
         cm_sum = self.history[0].confusion_matrix_ * 0
         for res in self.history:
             cm_sum += res.confusion_matrix_
@@ -299,11 +358,17 @@ class CrossValidationResults:
     @property
     def misclassified(self) -> pd.Series:
         """
-        Return a Series with filename as index and count of misclassification
-        as value for each event
+        A dataframe containing the indexes of the misclassifieds with
+        statistcis: occurence, predicted and true targets. **Note**: Number
+        of splits in CV is directly linked to the misclassifieds occurences
+        analysis.
+
+        Returns
+        -------
+        pd.DataFrame
         """
         values = pd.Series(np.concatenate(self.__misclassified__)).value_counts()
-        values.name = "count_misclassified"
+        values.name = "occurence"
 
         all_true = pd.concat([x.y_true for x in self.history])
         all_pred = pd.concat([x.y_pred for x in self.history])
@@ -328,12 +393,10 @@ class CrossValidationResults:
             index=values.index,
         )
 
-        percentage_error = (values / self.df.shape[0] * 100).rename(
-            "percentage_misclassified"
-        )
+        percentage_error = (values / self.df.shape[0] * 100).rename("percentage_error")
         print(
-            "Note: percentage_error is per split. Multiply it by n_split \
-            to have the full percentage."
+            "Note: percentage_error is per split. Multiply it by n_split "
+            + "to have the full percentage."
         )
         return pd.DataFrame(
             [values, percentage_error, true_targets, predicted_targets]
@@ -348,6 +411,15 @@ class CrossValidationResults:
         """
         return 1 - self._mean[self.select_by]
 
+    def percentile(self, p: float) -> pd.Series:
+        """
+        Return a series containing the values of p-percentile for each metric.
+        Percentile has to be in [0..1].
+        """
+        series = self.df.quantile(p)
+        series.index = series.index.map(lambda x: "p%02d_" % (p * 100) + x)
+        return series
+
     @property
     def mean(self) -> pd.Series:
         """
@@ -358,47 +430,25 @@ class CrossValidationResults:
         return series
 
     @property
-    def median(self) -> pd.Series:
-        """
-        Return a series containing the median values for each metric
-        See `percentile()` method.
-        """
-        return self.percentile(0.5)
-
-    @property
-    def p95(self) -> pd.Series:
-        """
-        Return a series containing the values of 0.95 percentile for each metric
-        See `percentile()` method.
-        """
-        return self.percentile(0.95)
-
-    @property
-    def p05(self) -> pd.Series:
-        """
-        Return a series containing the values of 0.05 percentile for each metric
-        See `percentile()` method.
-        """
-        return self.percentile(0.05)
-
-    def percentile(self, p: float) -> pd.Series:
-        """
-        Return a series containing the values of p-percentile for each metric.
-        """
-        series = self.df.quantile(p)
-        series.index = series.index.map(lambda x: "p%02d_" % (p * 100) + x)
-        return series
-
-    @property
     def metrics(self):
         """
-        Return aggregated metrics
+        Return aggregated metrics:
+            - p50 (median) of scores
+            - p05 of scores
+            - p95 of scores
+            - mean score
+
+        If you are not familiar with percentiles, please visit
+
+        Returns
+        -------
+        dict: the dictionary containing all the metrics.
         """
         _metrics = {}
-        _metrics.update(self.mean)
-        _metrics.update(self.p05)
-        _metrics.update(self.p95)
         _metrics.update({"score": self.score})
+        _metrics.update(self.percentile(0.5))
+        _metrics.update(self.percentile(0.05))
+        _metrics.update(self.percentile(0.95))
         return _metrics
 
     def plot_confusion_matrix_mean(
@@ -475,24 +525,24 @@ class CrossValidationResults:
 
     def plot_metrics(self, figtitle="Classification metrics"):
         """
-        Plot metrics as linechart using matplotlib
-        """
-        fig = plt.figure()
-        fig.suptitle(figtitle)
-        self.df[["accuracy", "matthews_corrcoef", "f1_weighted"]].plot()
+        Plot metrics for each train/val step during cross-validation
 
-    def plot_tp(self, figtitle="Classification success"):
-        """
-        Plot True Positive counts as linechart using matplotlib
-        """
-        fig = plt.figure()
-        fig.suptitle(figtitle)
-        self.df[["tp"]].plot()
+        .. note::
+            You can use different pandas backends, such as plotly:
+            `pd.options.plotting.backend = 'plotly'`
 
-    def plot_std(self, figtitle="Metrics Standard deviations"):
+        Parameters
+        ----------
+        figtitle : str, optional
+            Figure title. The default is "Classification metrics".
+
+        Returns
+        -------
+        None
+
         """
-        Plot standard deviation of all metrics as barplot using matplotlib
-        """
-        fig = plt.figure()
-        fig.suptitle(figtitle)
-        self.df.std().plot.bar(rot=30)
+        fig = self.df[
+            ["accuracy", "matthews_corrcoef", "f1_weighted", "f1_micro"]
+        ].plot(title=figtitle)
+        if pd.options.plotting.backend == "plotly":
+            fig.show()

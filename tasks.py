@@ -10,7 +10,8 @@ It can be used to:
 - serve documentation
 """
 from invoke import task
-
+import subprocess
+import webbrowser
 
 @task
 def clean(c, docs=True, extra=''):
@@ -32,9 +33,13 @@ def build(c, docs=False):
 
 
 @task
-def servedocs(c, port=8000):
-    c.run(
-        f"cd docs && make html && cd build/html && python -m http.server {port}", pty=True)
+def doc(c, port=8000):
+    c.run("cd doc && make html")
+    print("Build finished.")
+    print("=================================================================================")
+    print("Open your browser at 'http://localhost:" + str(port) + "' to browse the built " + \
+        "documentation.")
+    c.run(f"cd doc/build/html && python -m http.server {port}")
 
 
 @task

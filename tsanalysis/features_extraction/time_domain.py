@@ -1,4 +1,7 @@
 """
+Time Domain
+===============
+
 All functions below are vectorized, I.E, they can be applied on a whole DataFrame
 without having to apply to each column manually.
 If we want to add a new function, we need to make sure that it handles DataFrames!
@@ -114,8 +117,7 @@ def kurtosis(X: pd.DataFrame) -> pd.Series:
 
 def _into_subchunks(x, subchunk_length, every_n=1):
     """
-    from tsfresh sources:
-    https://tsfresh.readthedocs.io/en/latest/_modules/tsfresh/feature_extraction/feature_calculators.html#_into_subchunks
+    from `tsfresh sources <https://tsfresh.readthedocs.io/en/latest/_modules/tsfresh/feature_extraction/feature_calculators.html#_into_subchunks>`:
     Split the time series x into subwindows of length "subchunk_length", starting every "every_n".
 
     For example, the input data if [0, 1, 2, 3, 4, 5, 6] will be turned into a matrix
