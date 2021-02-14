@@ -96,7 +96,8 @@ setup(
         'imblearn==0.0',
         'autopep8>=1.5',
         'jupytext>=1.5.0',
-        'jupyterlab'
+        'jupyterlab',
+        'pyarrow>=2.0',
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -112,7 +113,6 @@ setup(
             'black',
             'sphinx>=2.2',
             'invoke>=1.3',
-            'pyarrow',
             'pytest',
             'pytest-coverage',
         ],
