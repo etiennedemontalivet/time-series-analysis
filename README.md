@@ -3,6 +3,7 @@
 A framework for time-series analysis and features extraction / visualization.
 
 ## Installation
+
 ```
 pip install --user -e .[dev]
 ```
@@ -20,8 +21,19 @@ To contribute to this repo, please follow this steps:
     - check your code format: `invoke lint` or `pylint tsanalysis`
     - test it: `invoke test` or `pytest tests`
 7. [optional] fix/commit/push the changes
-8. ask for a pull request
+8. **document** your code ! (cf *Documentation* below)
+9. ask for a pull request
 
 ## Documentation
 
-This is **Work In Progress**
+### Browse documentation
+
+To build and browse the documentation, go to the root folder and execute:
+
+```
+invoke doc
+```
+
+### Contribute
+
+The code's documentation is written following [numpy doc standards](https://numpydoc.readthedocs.io/en/latest/format.html). Please find a class example [here](https://numpydoc.readthedocs.io/en/latest/example.html#example).
