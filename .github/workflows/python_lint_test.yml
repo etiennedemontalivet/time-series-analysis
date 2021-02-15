@@ -22,10 +22,9 @@ jobs:
     - name: Add directory to pythonpath
       run: |
         echo $PYTHONPATH
-        export PYTHONPATH=$PYTHONPATH:$(pwd)
+        export PYTHONPATH=$PYTHONPATH:$(pwd)/tsanalysis
+        echo 'New PYTHONPATH: '
         echo $PYTHONPATH
-        ls -l
-        ls -l time-series-analysis
     - name: Analysing the code with pylint
       run: |
         pylint tsanalysis
