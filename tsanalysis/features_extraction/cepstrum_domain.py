@@ -74,7 +74,7 @@ def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.Dat
     ----------
     X : pd.DataFrame
         Input containing the time series. Shape has to be (n_signals, time)
-    n_cepstrum_coeff : int, optional
+    n_cepstrum_coeff : int, default=24
         Number of cesptrum coefficients to extract. The default is 24.
 
     Returns
@@ -82,5 +82,18 @@ def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.Dat
     pd.DataFrame
         The n_cepstrum_coeff cesptrum coefficients values per signal.
 
+    See also
+    --------
+    extract_fd_features
+        Extract frequency domain features
+
+    extract_td_features
+        Extract time domain features
+
+    extract_wd_features
+        Extract wavelet domain features
+
+    extract_all_features
+        Extract all features
     """
     return cepstrum_coefs(X.T, n_cepstrum_coeff=n_cepstrum_coeff)

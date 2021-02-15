@@ -144,3 +144,4 @@ cython_debug/
 **/.tmp_genetic
 .vscode
 auto_examples
+generated

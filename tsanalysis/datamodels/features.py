@@ -2,7 +2,7 @@
 This module defines the FeaturesDataset class
 """
 import os
-from typing import  List
+from typing import List
 from pathlib import Path
 from warnings import warn
 import pandas as pd
@@ -54,10 +54,13 @@ class FeaturesDataset:
     Attributes
     ----------
     X_scaled : pd.DataFrame
+        The scaled features in the standard format.
 
     index : pd.Index
+        X indexes.
 
     shape : tuple
+        X shape.
 
     Notes
     -----
@@ -367,8 +370,22 @@ class FeaturesDataset:
 
 
 def features_concat(features: List[FeaturesDataset], name: str = None):
-    """
-    Return a single features dataset from a list of features datasets
+    """Concatenate a list of :class:`FeaturesDataset`
+
+    Prameters
+    ---------
+    features : list of FeaturesDataset
+        The FeaturesDataset list to concatenate
+
+    name : str, default=None
+        The name of the new concatenate FeaturesDataset. If None, empty string
+        is used. The default is None.
+
+    Returns
+    -------
+    FeaturesDataset
+        A features dataset containing the input list of FeaturesDataset.
+
     """
     if name is None:
         name_concat = ""
@@ -377,8 +394,19 @@ def features_concat(features: List[FeaturesDataset], name: str = None):
     else:
         name_concat = name
 
+    target_labels = {}
+    for fs in features:
+        for key in fs.target_labels_.keys():
+            if key in target_labels and fs.target_labels_[key] != target_labels[key]:
+                print(
+                    "WARNING: merging target_labels with different values ! The last ones "
+                    + "in list will be kept."
+                )
+        target_labels.update(fs.target_labels_)
+
     return FeaturesDataset(
         X=pd.concat([feat.X for feat in features]),
         y=pd.concat([feat.y for feat in features]),
         name=name_concat,
+        target_labels=target_labels,
     )

@@ -1,4 +1,7 @@
 """
+Classification Results
+======================
+
 This module defines classes for easy computation of classification results.
 
 """
@@ -70,6 +73,10 @@ class ClassificationResults:
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
+
+    See also
+    --------
+    CrossValidationResults
 
     Notes
     -----
@@ -285,6 +292,10 @@ class CrossValidationResults:
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
+
+    See also
+    --------
+    ClassificationResults
 
     Notes
     -----

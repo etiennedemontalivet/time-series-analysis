@@ -111,13 +111,13 @@ def wavelets_bands_single_axis(
     ----------
     X : pd.Series
         The time serie to extract wavelet power bands from.
-    n_wavelet_bins : int, optional
+    n_wavelet_bins : int, default=10
         Number of wavelets power bands to extract. The default is 10.
-    wavelet_band_cover_ratio : float, optional
+    wavelet_band_cover_ratio : float, default=0.5
         The cover ration between bands. The default is 0.5.
-    wavelet_types : List[str], optional
+    wavelet_types : list of str, default=["db2", "db3"]
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
-    wavelet_dec_level : List[int], optional
+    wavelet_dec_level : list of int, default=[5,5]
         Decomposition level. The default is [5, 5].
 
     Returns
@@ -174,13 +174,13 @@ def wavelets_bands(
     ----------
     X : pd.DataFrame
         Input containing the time series. Shape has to be (n_signals, time)
-    n_wavelet_bins : int, optional
+    n_wavelet_bins : int, default=10
         Number of wavelets power bands to extract. The default is 10.
-    wavelet_band_cover_ratio : float, optional
+    wavelet_band_cover_ratio : float, default=0.5
         The cover ration between bands. The default is 0.5.
-    wavelet_types : List[str], optional
+    wavelet_types : list of str, default=["db2", "db3"]
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
-    wavelet_dec_level : List[int], optional
+    wavelet_dec_level : list of int, default=[5,5]
         Decomposition level. The default is [5, 5].
 
     Returns
@@ -219,13 +219,13 @@ def extract_wd_features(
     ----------
     X : pd.DataFrame
         Input containing the time series. Shape has to be (n_signals, time)
-    n_wavelet_bins : int, optional
+    n_wavelet_bins : int, default=10
         Number of wavelets power bands to extract. The default is 10.
-    wavelet_band_cover_ratio : float, optional
+    wavelet_band_cover_ratio : float, default=0.5
         The cover ration between bands. The default is 0.5.
-    wavelet_types : List[str], optional
+    wavelet_types : list of str, default=["db2","db3"]
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
-    wavelet_dec_level : List[int], optional
+    wavelet_dec_level : list of int, default=[5,5]
         Decomposition level. The default is [5, 5].
 
     Returns
@@ -233,6 +233,19 @@ def extract_wd_features(
     pd.DataFrame
         A DataFrame containing the wavelet features per time serie.
 
+    See also
+    --------
+    extract_cepd_features
+        Extract cepstrum domain features
+
+    extract_fd_features
+        Extract frequency domain features
+
+    extract_td_features
+        Extract time domain features
+
+    extract_all_features
+        Extract all features
     """
     return pd.concat(
         [

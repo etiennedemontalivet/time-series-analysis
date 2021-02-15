@@ -21,36 +21,37 @@ def brut_force_features_selection(
     accept_duplicates: bool = False,
     verbose: bool = True,
 ):
-    """
+    """Brut force features selection
+
     This method runs a brut force iterative approach on features selection.
     It takes a features list with an objectif to minimize.
 
     Parameters
     ----------
-    features_list : List[str]
+    features_list : list of str
         The total features list into which the brut force does the selection.
     objectif : Callable
-        The objectif to minimize. This must have 'features_list' as argument.
+        The objectif to minimize. This must have `features_list` as argument.
         It must return a dictionary with at least a 'score' key corresponding
         to the score value of one objectif call given a features_list.
         The could be for instance a cross-validation.
     max_features : int
         Max number of features to select.
-    init_list : List[str], optional
+    init_list : list of str, default=None
         List of initial features list to start with. If None, the features
         list starts empty. The default is None.
-    n_per_epoch : int, optional
+    n_per_epoch : int, default=1
         Number of best features to select per epoch. The default is 1.
-    accept_duplicates : bool, optional
+    accept_duplicates : bool, default=False
         If True, a feature can be selected multiple times during the optimization.
         If False, each feature can be selected only once. The default is False.
-    verbose : bool, optional
+    verbose : bool, default=True
         If True, verbose is enable. The default is True.
 
     Raises
     ------
     TypeError
-        If objectif does not contain 'features_list' as argument.
+        If objectif does not contain `features_list` as argument.
     TypeError
         If objectif does not return a dictionary containing a 'score' key.
 
@@ -65,8 +66,12 @@ def brut_force_features_selection(
     are added in logs and history.
 
     Because the optimization could take times, logs are saved after each epoch
-    in a temporary file, in the directory '.tmp_brutforce'. In case of crash,
+    in a temporary file, in the directory `.tmp_brutforce`. In case of crash,
     you could retrieve the logs here.
+
+    See also
+    --------
+    genetic_features_selection
 
     """
 
