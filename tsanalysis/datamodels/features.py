@@ -369,7 +369,7 @@ class FeaturesDataset:
 def features_concat(
     features: List[FeaturesDataset],
     name: str=None):
-    """ Concatenate a list of FeaturesDataset
+    """ Concatenate a list of :class:`FeaturesDataset`
 
     Prameters
     ---------

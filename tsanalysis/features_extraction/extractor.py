@@ -40,41 +40,55 @@ def extract_all_features(
         Input containing the time series. Shape has to be (n_signals, time)
     fs : int
         Sample rate in Hz.
-    n_cepstrum_coeff : int, optional
+    n_cepstrum_coeff : int, default=24
         Number of cesptrum coefficients to extract. The default is 24.
-    n_powerband_bins : int, optional
+    n_powerband_bins : int, default=10
         Number of powerbands to compute. The default is 10.
-    powerband_explicit_freq_names : bool, optional
+    powerband_explicit_freq_names : bool, default=True
         If True, the frequency bands are included in the feature name, else
         a counter is used. The default is True.
-    fft_window : str, optional
+    fft_window : str, default="hann"
         The type of window to use for windowing. The default is "hann".
-    fft_max_argmax_skip_coeffs : int, optional
+    fft_max_argmax_skip_coeffs : int, default=1
         Number of coefficients to skip for the magnitude max/argmax computation. The default is 1.
-    fft_max_argmax_last_coeffs : int, optional
+    fft_max_argmax_last_coeffs : int, default=None
         The last fft coeff to take into account for the the max/argmax magnitude computation.
         If None, no part of the magnitude is removed from the end.
         The default is None.
-    fft_filtering_func : Callable, optional
+    fft_filtering_func : Callable, default=None
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
-    n_wavelet_bins : int, optional
+    n_wavelet_bins : int, default=10
         Number of wavelets power bands to extract. The default is 10.
     wavelet_band_cover_ratio : float, optional
         The cover ration between bands. The default is 0.5.
-    wavelet_types : List[str], optional
+    wavelet_types : list of str, default=["db2", "db3"]
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
-    wavelet_dec_level : List[int], optional
+    wavelet_dec_level : list of int, default=[5,5]
         Decomposition level. The default is [5, 5].
-    sampen_m : int, optional
-        Length of subvectors. The default is 2.
-    sampen_eta : float, optional
+    sampen_m : int, default=2
+        Length of subvectors for sample entropy computation. The default is 2.
+    sampen_eta : float, default=0.2
         Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
 
     Returns
     -------
     pd.DataFrame
         A DataFrame containing all the extracted features per time serie.
+
+    See also
+    --------
+    extract_cepd_features
+        Extract cepstrum domain features
+    
+    extract_fd_features
+        Extract frequency domain features
+    
+    extract_td_features
+        Extract time domain features
+    
+    extract_wd_features
+        Extract wavelet domain features
 
     """
     return pd.concat(

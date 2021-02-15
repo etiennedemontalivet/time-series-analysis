@@ -24,16 +24,17 @@ def genetic_features_selection(
     params_updater: Callable = None,
     verbose: bool = True,
 ):
-    """
+    """ Genetic features selection
+
     This method runs a genetic algorithm to perform features selection.
-    TODO: refactor
+    .. todo: refactor
 
     Parameters
     ----------
-    features_list : List[str]
+    features_list : list of str
         The total features list into which the genetic algorithm does the selection.
     objectif : Callable
-        The objectif to minimize. This must have 'features_list' as argument.
+        The objectif to minimize. This must have ``features_list`` as argument.
         It must return a dictionary with at least a 'score' key corresponding
         to the score value of one objectif call given a features_list.
         The could be for instance a cross-validation.
@@ -42,38 +43,38 @@ def genetic_features_selection(
     n_features : int
         The number of features per individual.
     genetic_params : dict
-        A dictionnary containing the following genetic parameters:
-            - 'selection_ratio': population ratio of selection for cross-over
-            - 'mutation_features_ratio': ratio of features to mutate
-            - 'mutation_population_ratio': population ratio to mutate
-    n_epochs : int, optional
+        A dictionary containing the following genetic parameters:
+            - ``selection_ratio``: population ratio of selection for cross-over
+            - ``mutation_features_ratio``: ratio of features to mutate
+            - ``mutation_population_ratio``: population ratio to mutate
+    n_epochs : int, default=10
         Number of epochs. The default is 10.
-    init_population : List[List[str]], optional
+    init_population : list of list of str, default=None
         The initial population. If None, a random population is created. The default is None.
-    params_updater : Callable, optional
+    params_updater : Callable, default=None
         A genetic parameters updater. If not None, this must be a Callable with
         three arguments:
-            - 'epoch': the current epoch number
-            - 'genetic_params': the current genetic parameters
-            - 'objectif_output': the output dictionnary of the objectif function
+            - ``epoch``: the current epoch number
+            - ``genetic_params``: the current genetic parameters
+            - ``objectif_output``: the output dictionary of the objectif function
         This could be used to update the genetic paramters in specific contexts.
-        It must return a 'genetic_params' dictionnary.
+        It must return a ``genetic_params`` dictionary.
         The default is None.
-    verbose : bool, optional
+    verbose : bool, default=True
         If True, verbose is enable. The default is True.
 
     Raises
     ------
     ValueError
-        If 'init_population' shape does not match 'n_population' and 'n_features'
+        If ``init_population`` shape does not match ``n_population`` and ``n_features``
         values.
-        If 'genetic_params' misses a key.
+        If ``genetic_params`` misses a key.
 
     TypeError
-        If 'features_list' is not in 'objectif' signature.
-        If 'epoch' is not in 'params_updater' signature.
-        If 'genetic_params' is not in 'params_updater' signature.
-        If 'objectif_output' is not in 'params_updater' signature.
+        If ``features_list`` is not in ``objectif`` signature.
+        If ``epoch`` is not in ``params_updater`` signature.
+        If ``genetic_params`` is not in ``params_updater`` signature.
+        If ``objectif_output`` is not in ``params_updater`` signature.
 
     Returns
     -------
@@ -87,9 +88,13 @@ def genetic_features_selection(
     are added in logs and final result.
 
     Because the optimization could take times, logs are saved after each epoch
-    in a temporary file, in the directory '.tmp_genetic'. In case of crash,
+    in a temporary file, in the directory ``.tmp_genetic``. In case of crash,
     you could retrieve the logs of the last population here with associated best
     individual score.
+
+    See also
+    --------
+    brut_force_features_selection
 
     """
 

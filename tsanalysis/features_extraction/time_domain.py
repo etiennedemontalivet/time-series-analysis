@@ -219,9 +219,9 @@ def extract_td_features(
     ----------
     X : pd.DataFrame
         Time series to extract sample entropy from.
-    sampen_m : int, optional
-        Length of subvectors. The default is 2.
-    sampen_eta : float, optional
+    sampen_m : int, default=2
+        Length of subvectors for sample entropy computation. The default is 2.
+    sampen_eta : float, default=0.2
         Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
 
     Returns
@@ -229,6 +229,19 @@ def extract_td_features(
     pd.DataFrame
         A DataFrame containing the time domain features per time serie.
 
+    See also
+    --------
+    extract_cepd_features
+        Extract cepstrum domain features
+    
+    extract_fd_features
+        Extract frequency domain features
+
+    extract_wd_features
+        Extract wavelet domain features
+
+    extract_all_features
+        Extract all features
     """
     # List all time domain features function that does not have parameters
     funcs = [
