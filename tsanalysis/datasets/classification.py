@@ -6,7 +6,8 @@ This module defines common datasets to be loaded in the framework specific forma
 """
 
 import pandas as pd
-from sklearn.datasets import load_iris, make_classification
+import sklearn
+from sklearn.datasets import load_iris
 
 # pylint: disable=no-member
 def make_iris_data():
@@ -36,6 +37,8 @@ def make_iris_data():
     X_df = pd.DataFrame(data=X, index=files, columns=data_iris.feature_names)
     return X_df, y_df
 
+
+# pylint: disable=too-many-locals,too-many-arguments
 def make_classification(
     n_samples=100,
     n_features=20,
@@ -51,7 +54,8 @@ def make_classification(
     shift=0.0,
     scale=1.0,
     shuffle=True,
-    random_state=None):
+    random_state=None,
+):
     """Generate a random n-class classification problem.
 
     This method is fully based on `sklearn make_classification <https://scikit-learn.org/stable/modules/generated/sklearn.datasets.make_classification.html#sklearn.datasets.make_classification>`__.
@@ -148,7 +152,7 @@ def make_classification(
         The integer labels for class membership of each sample with fake filenames as indexes.
 
     """
-    X, y = make_classification(
+    X, y = sklearn.datasets.make_classification(
         n_samples=n_samples,
         n_features=n_features,
         n_informative=n_informative,
@@ -163,12 +167,12 @@ def make_classification(
         shift=shift,
         scale=scale,
         shuffle=shuffle,
-        random_state=random_state
-        )
+        random_state=random_state,
+    )
     # Creating dataframe and serie with fake filenames and fake features names
     files = ["file_" + str(i) for i in range(len(y))]
     feature_names = ["feat_" + str(i) for i in range(n_features)]
     y_df = pd.Series(data=y, index=files)
     X_df = pd.DataFrame(data=X, index=files, columns=feature_names)
-    
+
     return X_df, y_df
