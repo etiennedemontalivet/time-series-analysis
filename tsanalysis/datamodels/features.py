@@ -366,9 +366,25 @@ class FeaturesDataset:
         fig.show()
 
 
-def features_concat(features: List[FeaturesDataset], name: str = None):
-    """
-    Return a single features dataset from a list of features datasets
+def features_concat(
+    features: List[FeaturesDataset],
+    name: str=None):
+    """ Concatenate a list of FeaturesDataset
+
+    Prameters
+    ---------
+    features : list of FeaturesDataset
+        The FeaturesDataset list to concatenate
+    
+    name : str, default=None
+        The name of the new concatenate FeaturesDataset. If None, empty string
+        is used. The default is None.
+
+    Returns
+    -------
+    FeaturesDataset
+        A features dataset containing the input list of FeaturesDataset.
+
     """
     if name is None:
         name_concat = ""
@@ -376,9 +392,18 @@ def features_concat(features: List[FeaturesDataset], name: str = None):
             name_concat = name_concat + feat.name + "__"
     else:
         name_concat = name
+    
+    target_labels = {}
+    for fs in features:
+        for key in fs.target_labels_.keys():
+            if key in target_labels and fs.target_labels_[key] != target_labels[key]:
+                print("WARNING: merging target_labels with different values ! The last ones " + \
+                    "in list will be kept.")
+        target_labels.update(fs.target_labels_)
 
     return FeaturesDataset(
         X=pd.concat([feat.X for feat in features]),
         y=pd.concat([feat.y for feat in features]),
         name=name_concat,
+        target_labels=target_labels
     )
