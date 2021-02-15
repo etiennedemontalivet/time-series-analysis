@@ -8,10 +8,10 @@ from typing import Callable
 from typing import List
 import pandas as pd
 
-from features_extraction import extract_cepd_features
-from features_extraction import extract_td_features
-from features_extraction import extract_wd_features
-from features_extraction import extract_fd_features
+from tsanalysis.features_extraction.cepstrum_domain import extract_cepd_features
+from tsanalysis.features_extraction.time_domain import extract_td_features
+from tsanalysis.features_extraction.wavelets_domain import extract_wd_features
+from tsanalysis.features_extraction.frequency_domain import extract_fd_features
 
 # pylint: disable=too-many-arguments,dangerous-default-value
 def extract_all_features(
