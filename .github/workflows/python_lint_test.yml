@@ -21,8 +21,9 @@ jobs:
         pip install .
     - name: Add directory to pythonpath
       run: |
+        echo 'Previous PYTHONPATH: '
         echo $PYTHONPATH
-        export PYTHONPATH=$PYTHONPATH:$(pwd)/tsanalysis
+        export PYTHONPATH=$(pwd)/tsanalysis
         echo 'New PYTHONPATH: '
         echo $PYTHONPATH
     - name: Analysing the code with pylint
