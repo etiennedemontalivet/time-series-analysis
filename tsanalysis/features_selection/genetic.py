@@ -24,7 +24,7 @@ def genetic_features_selection(
     params_updater: Callable = None,
     verbose: bool = True,
 ):
-    """ Genetic features selection
+    """Genetic features selection
 
     This method runs a genetic algorithm to perform features selection.
     .. todo: refactor

@@ -250,7 +250,7 @@ def extract_fd_features(
 
     extract_td_features
         Extract time domain features
-    
+
     extract_wd_features
         Extract wavelet domain features
 

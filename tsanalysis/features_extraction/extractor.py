@@ -80,13 +80,13 @@ def extract_all_features(
     --------
     extract_cepd_features
         Extract cepstrum domain features
-    
+
     extract_fd_features
         Extract frequency domain features
-    
+
     extract_td_features
         Extract time domain features
-    
+
     extract_wd_features
         Extract wavelet domain features
 

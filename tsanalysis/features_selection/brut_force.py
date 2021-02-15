@@ -21,7 +21,7 @@ def brut_force_features_selection(
     accept_duplicates: bool = False,
     verbose: bool = True,
 ):
-    """ Brut force features selection
+    """Brut force features selection
 
     This method runs a brut force iterative approach on features selection.
     It takes a features list with an objectif to minimize.

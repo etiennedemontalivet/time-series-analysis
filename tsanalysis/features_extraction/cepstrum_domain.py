@@ -86,10 +86,10 @@ def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.Dat
     --------
     extract_fd_features
         Extract frequency domain features
-    
+
     extract_td_features
         Extract time domain features
-    
+
     extract_wd_features
         Extract wavelet domain features
 

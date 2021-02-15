@@ -233,7 +233,7 @@ def extract_td_features(
     --------
     extract_cepd_features
         Extract cepstrum domain features
-    
+
     extract_fd_features
         Extract frequency domain features
 

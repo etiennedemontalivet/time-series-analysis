@@ -8,7 +8,7 @@ This module defines common datasets to be loaded in the framework specific forma
 import pandas as pd
 from sklearn.datasets import load_iris
 
-#pylint: disable=no-member
+# pylint: disable=no-member
 def make_iris_data():
     """
     Make an iris dataset with specific format.
