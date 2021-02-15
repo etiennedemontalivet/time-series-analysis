@@ -24,12 +24,6 @@ Classes
    classification.ClassificationResults
    classification.CrossValidationResults
 
-Functions
----------
-.. autosummary::
-   :toctree: generated/
-   :template: function.rst
-
 :mod:`tsanalysis.datamodels`: DataModels
 ================================================
 
