@@ -27,7 +27,7 @@ class ClassificationResults:
     y_pred : pd.Series
         Estimated targets as returned by a classifier.
 
-    labels : array-like of shape (n_classes), default=None
+    labels : array-like of shape (`n_classes_`), default=None
         List of labels to index the matrix. This may be used to reorder or select
         a subset of labels. If None is given, those that appear at least once in
         y_true or y_pred are used in sorted order.
@@ -38,7 +38,7 @@ class ClassificationResults:
     n_classes_ : int
         number of classes
 
-    classes_ : ndarray of shape (n_classes_,)
+    classes_ : ndarray of shape (`n_classes_`)
         class labels
 
     accurracy_ : float
@@ -288,7 +288,7 @@ class CrossValidationResults:
     metrics : dict
         Aggregated metrics of CV.
 
-    confusion_matrix_mean : ndarray of shape (n_classes, n_classes)
+    confusion_matrix_mean : ndarray of shape (`n_classes_`, `n_classes_`)
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
