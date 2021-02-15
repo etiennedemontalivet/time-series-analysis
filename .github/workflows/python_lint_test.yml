@@ -21,9 +21,11 @@ jobs:
         pip install .
     - name: Add directory to pythonpath
       run: |
-        echo PYTHONPATH
+        echo $PYTHONPATH
         export PYTHONPATH=$PYTHONPATH:$(pwd)
-        echo PYTHONPATH
+        echo $PYTHONPATH
+        ls -l
+        ls -l time-series-analysis
     - name: Analysing the code with pylint
       run: |
         pylint tsanalysis
