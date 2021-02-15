@@ -65,6 +65,7 @@ Functions
    :template: function.rst
 
    datasets.make_iris_data
+   datasets.make_classification
 
 :mod:`tsanalysis.features_extraction`: Features Extraction
 ==========================================================
