@@ -23,7 +23,7 @@ jobs:
       run: |
         echo 'Previous PYTHONPATH: '
         echo $PYTHONPATH
-        export PYTHONPATH=$(pwd)/tsanalysis
+        export PYTHONPATH=$(pwd)
         echo 'New PYTHONPATH: '
         echo $PYTHONPATH
     - name: Analysing the code with pylint
