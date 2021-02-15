@@ -19,13 +19,6 @@ jobs:
         pip install pylint
         pip install pytest pytest-cov
         pip install .
-    - name: Add directory to pythonpath
-      run: |
-        echo 'Previous PYTHONPATH: '
-        echo $PYTHONPATH
-        export PYTHONPATH=$(pwd)
-        echo 'New PYTHONPATH: '
-        echo $PYTHONPATH
     - name: Analysing the code with pylint
       run: |
         pylint tsanalysis
