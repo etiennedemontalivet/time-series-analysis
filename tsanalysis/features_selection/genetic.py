@@ -27,39 +27,50 @@ def genetic_features_selection(
     """Genetic features selection
 
     This method runs a genetic algorithm to perform features selection.
-    .. todo: refactor
+
+    .. note::
+
+        TODO: code refactor
 
     Parameters
     ----------
     features_list : list of str
         The total features list into which the genetic algorithm does the selection.
+
     objectif : Callable
         The objectif to minimize. This must have ``features_list`` as argument.
         It must return a dictionary with at least a 'score' key corresponding
         to the score value of one objectif call given a features_list.
         The could be for instance a cross-validation.
+
     n_population : int
         The size of the genetic population.
+
     n_features : int
         The number of features per individual.
+
     genetic_params : dict
         A dictionary containing the following genetic parameters:
-            - ``selection_ratio``: population ratio of selection for cross-over
-            - ``mutation_features_ratio``: ratio of features to mutate
-            - ``mutation_population_ratio``: population ratio to mutate
+        - ``selection_ratio``: population ratio of selection for cross-over
+        - ``mutation_features_ratio``: ratio of features to mutate
+        - ``mutation_population_ratio``: population ratio to mutate
+
     n_epochs : int, default=10
         Number of epochs. The default is 10.
+
     init_population : list of list of str, default=None
         The initial population. If None, a random population is created. The default is None.
+
     params_updater : Callable, default=None
         A genetic parameters updater. If not None, this must be a Callable with
         three arguments:
-            - ``epoch``: the current epoch number
-            - ``genetic_params``: the current genetic parameters
-            - ``objectif_output``: the output dictionary of the objectif function
+        - ``epoch``: the current epoch number
+        - ``genetic_params``: the current genetic parameters
+        - ``objectif_output``: the output dictionary of the objectif function
         This could be used to update the genetic paramters in specific contexts.
         It must return a ``genetic_params`` dictionary.
         The default is None.
+
     verbose : bool, default=True
         If True, verbose is enable. The default is True.
 
@@ -82,8 +93,8 @@ def genetic_features_selection(
         A dataframe containing, per epoch, the best individual score, the objectif
         metrics (if any) and the whole population.
 
-    Note
-    ----
+    Notes
+    -----
     The objectif function could contain as many keys as wanted. All these metrics
     are added in logs and final result.
 
@@ -97,7 +108,6 @@ def genetic_features_selection(
     brut_force_features_selection
 
     """
-
     # Initialization
     rng = default_rng()
     population_features = []

@@ -60,8 +60,8 @@ def brut_force_features_selection(
     pd.DataFrame
         History of optimization.
 
-    Note
-    ----
+    Notes
+    -----
     The objectif function could contain as many keys as wanted. All these metrics
     are added in logs and history.
 
