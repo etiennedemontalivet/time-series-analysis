@@ -1,4 +1,7 @@
 """
+Classification Results
+======================
+
 This module defines classes for easy computation of classification results.
 
 """

@@ -12,7 +12,47 @@
 #
 import os
 import sys
+from operator import attrgetter
+import inspect
+
 sys.path.insert(0, os.path.abspath('../../tsanalysis'))
+
+def linkcode_resolve(domain, info):
+    """Resolve source code linkage.
+    """
+
+    if domain not in ('py', 'pyx'):
+        return
+    if not info.get('module') or not info.get('fullname'):
+        return
+
+    class_name = info['fullname'].split('.')[0]
+    module = __import__(info['module'], fromlist=[class_name])
+    obj = attrgetter(info['fullname'])(module)
+
+    # Unwrap the object to get the correct source
+    # file in case that is wrapped by a decorator
+    obj = inspect.unwrap(obj)
+
+    try:
+        fn = inspect.getsourcefile(obj)
+        lineno = inspect.getsourcelines(obj)[1]
+    except Exception:
+        fn = None
+    if not fn:
+        try:
+            fn = inspect.getsourcefile(sys.modules[obj.__module__])
+            lineno = inspect.getsourcelines(sys.modules[obj.__module__])
+        except Exception:
+            fn = None
+    if not fn:
+        print("Error in linkcode_resolve with domain: %s and info: %s", domain, info)
+        resolved_link = 'https://github.com/ml-ngnm/time-series-analysis/'
+    else:
+        index_start = fn.index('tsanalysis')
+        resolved_link = 'https://github.com/ml-ngnm/time-series-analysis/tree/develop/' + \
+            fn[index_start:].replace('\\', '/') + '#L' + str(lineno)
+    return resolved_link
 
 
 # -- Project information -----------------------------------------------------
@@ -44,7 +84,7 @@ release = '0.0.1'
 extensions = [
     'sphinx.ext.autodoc', 'sphinx.ext.autosummary',
     'numpydoc',
-    #'sphinx.ext.linkcode', 
+    'sphinx.ext.linkcode',
     'sphinx.ext.doctest',
     'sphinx.ext.intersphinx',
     'sphinx.ext.imgconverter',
