@@ -158,7 +158,25 @@ class ClassificationResults:
     @property
     def metrics(self) -> Dict[str, float]:
         """
-        Returns a dictionary of all metrics for convenience
+        Returns a dictionary of all metrics for convenience.
+
+        Returns
+        -------
+        dict
+            A dictionary with the following keys:
+
+            - ``matthews_corrcoef``: matthew correlation coefficient. See here for more details.
+            - ``accuracy``: accuracy. See here for more details.
+            - ``f1_weighted``: the f1 weighted score. See here for more details.
+            - ``f1_micro``: the f1 micro score. See here for more details.
+            - ``tp``: true positives number.
+            - ``fp``: false positives number.
+            - ``confusion_matrix``: the confusion matrix.
+
+        See also
+        --------
+        dict
+
         """
         _metrics = {
             "matthews_corrcoef": self.matthews_corrcoef_,
@@ -174,7 +192,17 @@ class ClassificationResults:
     @property
     def misclassified(self) -> pd.Index:
         """
-        Returns the index of misclassified
+        Classification misclassifieds.
+
+        Returns
+        -------
+        pd.Index
+            Indexes of misclassifieds.
+
+        See also
+        --------
+        dict
+
         """
         y_misclassified = self.y_true[self.y_true != self.y_pred]
         return y_misclassified.index
@@ -235,29 +263,38 @@ class ClassificationResults:
                 color="white" if cm[i, j] > thresh else "black",
             )
 
-        plt.tight_layout()
         plt.ylabel("True label")
         plt.xlabel(
             "Predicted label\nf1_weighted={:0.2f}; mcc={:0.2f}".format(
                 self.f1_weighted_, self.matthews_corrcoef_
             )
         )
+        plt.tight_layout()
         plt.show()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__str__()})"
 
     def __str__(self) -> str:
-        return str(self.metrics)
+        return str(self.dict())
 
     def dict(self):
         """
         Returns a dict representation of the results
+
+        Returns
+        -------
+        dict
+            A dictionary with the following keys:
+
+            - ``metrics``: classification :meth:`metrics`
+            - ``predictions``: a dictionary containing ``y_true`` and ``y_pred`` results.
+            - ``misclassified``: classification :meth:`misclassified`
         """
         data = {}
         data["metrics"] = self.metrics
         data["predictions"] = {"y_true": self.y_true, "y_pred": self.y_pred}
-        data["misclassifications"] = self.misclassified
+        data["misclassified"] = self.misclassified
         return data
 
 
@@ -525,13 +562,13 @@ class CrossValidationResults:
                 color="white" if cm[i, j] > thresh else "black",
             )
 
-        plt.tight_layout()
         plt.ylabel("True label")
         plt.xlabel(
             "Predicted label\nf1_weighted={:0.2f}; mcc={:0.2f}".format(
                 self.mean["mean_f1_weighted"], self.mean["mean_matthews_corrcoef"]
             )
         )
+        plt.tight_layout()
         plt.show()
 
     def plot_metrics(self, figtitle="Classification metrics"):
