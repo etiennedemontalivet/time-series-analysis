@@ -232,10 +232,7 @@ class ClassificationResults:
         cm = self.confusion_matrix_
 
         if labels_names is None:
-            if self.labels_names is None:
-                labels_names = np.unique(self.y_true).tolist()
-            else:
-                labels_names = self.labels_names
+            labels_names = np.unique(self.y_true).tolist()
 
         if cmap is None:
             cmap = plt.get_cmap("Blues")
