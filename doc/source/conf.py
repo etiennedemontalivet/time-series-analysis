@@ -135,6 +135,23 @@ html_short_title = 'tsanalysis'
 html_static_path = ['_static']
 
 sphinx_gallery_conf = {
-    'examples_dirs': '../examples',   # path to example scripts
-    'gallery_dirs': 'auto_examples',  # path to where to save gallery generated output
+    'doc_module': 'tsanalysis',
+    'backreferences_dir': os.path.join('modules', 'generated'),
+    'show_memory': False,
+    'reference_url': {
+        'tsanalysis': None},
+    'examples_dirs': ['../examples'],
+    'gallery_dirs': ['auto_examples'],
+    # 'subsection_order': ('../examples'),
+    # 'binder': {
+    #     'org': 'tsanalysis',
+    #     'repo': 'tsanalysis',
+    #     # 'binderhub_url': 'https://mybinder.org',
+    #     # 'branch': binder_branch,
+    #     # 'dependencies': './binder/requirements.txt',
+    #     'use_jupyter_lab': True
+    # },
+    # avoid generating too many cross links
+    'inspect_global_variables': True, #False,
+    'remove_config_comments': True,
 }
