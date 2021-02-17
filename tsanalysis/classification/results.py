@@ -183,9 +183,9 @@ class ClassificationResults:
             "accuracy": self.accuracy_,
             "f1_weighted": self.f1_weighted_,
             "f1_micro": self.f1_micro_,
-            "tp": self.tp_,
-            "fp": self.fp_,
-            "confusion_matrix": self.confusion_matrix_,
+            "tp": int(self.tp_),
+            "fp": int(self.fp_),
+            "confusion_matrix": self.confusion_matrix_.tolist(),
         }
         return _metrics
 
@@ -232,7 +232,10 @@ class ClassificationResults:
         cm = self.confusion_matrix_
 
         if labels_names is None:
-            labels_names = np.unique(self.y_true).tolist()
+            if self.labels_names is None:
+                labels_names = np.unique(self.y_true).tolist()
+            else:
+                labels_names = self.labels_names
 
         if cmap is None:
             cmap = plt.get_cmap("Blues")
