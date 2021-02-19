@@ -15,10 +15,10 @@ Learn how to format the data to use the framework.
 #
 
 #%%
-# **Features format**  
+# **Features format**
 #
 # Speaking about the features format, this framework uses the following for the common ``X``
-# and ``y``.  
+# and ``y``.
 #
 # ``X`` has to be a ``pd.DataFrame`` with:
 #
@@ -43,7 +43,7 @@ y.head()
 
 #%%
 # **Create fake features data**
-# 
+#
 # We created a fake ``make_classification`` method that you can use to create fake features.
 from tsanalysis.datasets import make_classification
 X, y = make_classification(n_features=10)
