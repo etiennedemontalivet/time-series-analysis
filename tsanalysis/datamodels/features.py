@@ -365,6 +365,11 @@ class FeaturesDataset:
         fig = ff.create_distplot(
             hist_data, group_labels, bin_size=bin_size, histnorm="probability"
         )
+        fig.update_xaxes(
+            range=[
+                self.X[feature_name].min()-0.1*self.X[feature_name].min(),
+                self.X[feature_name].max()+0.1*self.X[feature_name].max()
+            ])
         fig.update_layout(title=title, title_x=0.5)
         fig.show()
 
