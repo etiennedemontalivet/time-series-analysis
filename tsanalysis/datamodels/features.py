@@ -331,7 +331,12 @@ class FeaturesDataset:
 
         return cls(X, y, name=dataset_name, target_labels=target_labels)
 
-    def plot_distribution(self, feature_name: str, title: str = None, bin_size=1.0):
+    def plot_distribution(
+        self,
+        feature_name: str,
+        title: str=None,
+        bin_size='auto',
+        n_bins: int=20):
         """
         Plot distribution of a specific feature
 
@@ -343,8 +348,13 @@ class FeaturesDataset:
         title : str, default=None
             Figure title. If None, the feature name is used. The default is None.
 
-        bin_size : list of float or float, default=1.
-            Size of histogram bins. The default is 1..
+        bin_size : list of float or float or str, default='auto'
+            Size of histogram bins in absolute value. If auto, bin sizes are automatically
+            comptued for each class. The default is auto.
+
+        n_bins : int, default=20
+            If ``bin_size`` is 'auto', number of bins to use per class. The default
+            is 20.
 
         Returns
         -------
@@ -356,6 +366,14 @@ class FeaturesDataset:
 
         # Group data together
         hist_data = [self.X[feature_name][self.y == iC] for iC in self.classes_]
+
+        # Bin sizes
+        if bin_size == 'auto':
+            bin_size = []
+            for iC in self.classes_:
+                X_i = self.X[feature_name][self.y == iC]
+                bin_size.append((X_i.max() - X_i.min()) / n_bins)
+
         if self.target_labels_ is not None:
             group_labels = [self.target_labels_[iC] for iC in self.classes_]
         else:
@@ -370,8 +388,10 @@ class FeaturesDataset:
                 self.X[feature_name].min()-0.1*self.X[feature_name].min(),
                 self.X[feature_name].max()+0.1*self.X[feature_name].max()
             ])
+        fig.update_yaxes(title="probability")
+        fig.update_xaxes(title=feature_name)
         fig.update_layout(title=title, title_x=0.5)
-        fig.show()
+        return fig
 
 
 def features_concat(features: List[FeaturesDataset], name: str = None):
