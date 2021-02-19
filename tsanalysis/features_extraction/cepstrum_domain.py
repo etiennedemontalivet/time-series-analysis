@@ -66,7 +66,11 @@ def cepstrum_coefs(
     return res.T
 
 
-def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.DataFrame:
+def extract_cepd_features(
+    X: pd.DataFrame,
+    n_cepstrum_coeff: int=24,
+    prefix: str=None
+) -> pd.DataFrame:
     """
     A function that computes Cepstrum Domain features.
 
@@ -76,6 +80,9 @@ def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.Dat
         Input containing the time series. Shape has to be (n_signals, time)
     n_cepstrum_coeff : int, default=24
         Number of cesptrum coefficients to extract. The default is 24.
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
@@ -96,4 +103,10 @@ def extract_cepd_features(X: pd.DataFrame, n_cepstrum_coeff: int = 24) -> pd.Dat
     extract_all_features
         Extract all features
     """
-    return cepstrum_coefs(X.T, n_cepstrum_coeff=n_cepstrum_coeff)
+    # use a prefix in feature name
+    if prefix is None or prefix == '':
+        prefix=''
+    elif prefix[-1] != '_':
+        prefix += '_'
+
+    return cepstrum_coefs(X.T, n_cepstrum_coeff=n_cepstrum_coeff).add_prefix(prefix)

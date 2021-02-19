@@ -30,6 +30,7 @@ def extract_all_features(
     wavelet_dec_level: List[int] = [5, 5],
     sampen_m: int = 2,
     sampen_eta: float = 0.2,
+    prefix: str=None
 ) -> pd.DataFrame:
     """
     A function that computes all features.
@@ -70,6 +71,9 @@ def extract_all_features(
         Length of subvectors for sample entropy computation. The default is 2.
     sampen_eta : float, default=0.2
         Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
@@ -93,7 +97,12 @@ def extract_all_features(
     """
     return pd.concat(
         [
-            extract_td_features(X=X, sampen_m=sampen_m, sampen_eta=sampen_eta),
+            extract_td_features(
+                X=X,
+                sampen_m=sampen_m,
+                sampen_eta=sampen_eta,
+                prefix=prefix
+            ),
             extract_fd_features(
                 X=X,
                 fs=fs,
@@ -103,14 +112,20 @@ def extract_all_features(
                 fft_max_argmax_skip_coeffs=fft_max_argmax_skip_coeffs,
                 fft_max_argmax_last_coeffs=fft_max_argmax_last_coeffs,
                 fft_filtering_func=fft_filtering_func,
+                prefix=prefix
             ),
-            extract_cepd_features(X=X, n_cepstrum_coeff=n_cepstrum_coeff),
+            extract_cepd_features(
+                X=X,
+                n_cepstrum_coeff=n_cepstrum_coeff,
+                prefix=prefix
+            ),
             extract_wd_features(
                 X=X,
                 n_wavelet_bins=n_wavelet_bins,
                 wavelet_band_cover_ratio=wavelet_band_cover_ratio,
                 wavelet_types=wavelet_types,
                 wavelet_dec_level=wavelet_dec_level,
+                prefix=prefix,
             ),
         ],
         axis=1,

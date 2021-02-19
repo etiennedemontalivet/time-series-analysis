@@ -210,7 +210,10 @@ def sample_entropy(X: pd.DataFrame, m: int = 4, eta: float = 0.2) -> pd.Series:
 
 
 def extract_td_features(
-    X: pd.DataFrame, sampen_m: int = 2, sampen_eta: float = 0.2
+    X: pd.DataFrame,
+    sampen_m: int=2,
+    sampen_eta: float=0.2,
+    prefix: str=None
 ) -> pd.DataFrame:
     """
     A function that computes Time Domain features.
@@ -223,6 +226,9 @@ def extract_td_features(
         Length of subvectors for sample entropy computation. The default is 2.
     sampen_eta : float, default=0.2
         Ratio to be multiplied by the std of x to get the tolerance. The default is 0.2.
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
@@ -273,4 +279,10 @@ def extract_td_features(
         )
     )
 
-    return pd.concat(out, axis=1)
+    # use a prefix in feature name
+    if prefix is None or prefix == '':
+        prefix=''
+    elif prefix[-1] != '_':
+        prefix += '_'
+
+    return pd.concat(out, axis=1).add_prefix(prefix)

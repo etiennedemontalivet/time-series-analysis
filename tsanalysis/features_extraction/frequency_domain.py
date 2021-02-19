@@ -18,7 +18,7 @@ def powerband_single_axis(
 ) -> pd.Series:
     """
     Compute power band coefficients of a single Series using Welch method.
-    See https://en.wikipedia.org/wiki/Welch%27s_method
+    See `<here https://en.wikipedia.org/wiki/Welch%27s_method>__` for more details.
 
     Parameters
     ----------
@@ -211,6 +211,7 @@ def extract_fd_features(
     fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
     fft_filtering_func: Callable = None,
+    prefix: str=None
 ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.
@@ -237,6 +238,9 @@ def extract_fd_features(
     fft_filtering_func : Callable, default=None
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
@@ -257,6 +261,12 @@ def extract_fd_features(
     extract_all_features
         Extract all features
     """
+    # use a prefix in feature name
+    if prefix is None or prefix == '':
+        prefix=''
+    elif prefix[-1] != '_':
+        prefix += '_'
+
     return pd.concat(
         [
             powerband(
@@ -274,4 +284,4 @@ def extract_fd_features(
             ),
         ],
         axis=1,
-    )
+    ).add_prefix(prefix)
