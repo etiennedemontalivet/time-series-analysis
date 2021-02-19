@@ -17,7 +17,9 @@ warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 # You could use any model that gives you a ``{y_true, y_pred}`` result. The only specific
 # move here is to **convert them to** ``pd.Series``.
 #
-# *TODO*: see also framework format example
+# .. seealso::
+#
+#       More details in this example about :ref:`sphx_glr_auto_examples_datamodels_plot_data_format.py`
 
 import numpy as np
 import pandas as pd
