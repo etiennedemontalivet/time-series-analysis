@@ -2,9 +2,7 @@
 Data format
 ==========================
 
-**Objective**  
-
-In this example we will see how to format the data to use the framework.
+Learn how to format the data to use the framework.
 """
 
 #%%

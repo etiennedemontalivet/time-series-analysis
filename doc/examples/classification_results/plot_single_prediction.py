@@ -2,12 +2,7 @@
 Single prediction analysis
 ==========================
 
-**Objective**  
-
-In this notebook we will see how to analyze the results of a classification through the
-:class:`ClassificationResults <tsanalysis.classification.ClassificationResults>` class.
-We use iris dataset here. We'll do a simple classificiation and explore the results
-through the given methods.
+Learn how to analyze the results of a single classification.
 """
 
 ## Remove warning outputs...
