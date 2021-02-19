@@ -67,9 +67,7 @@ def cepstrum_coefs(
 
 
 def extract_cepd_features(
-    X: pd.DataFrame,
-    n_cepstrum_coeff: int=24,
-    prefix: str=None
+    X: pd.DataFrame, n_cepstrum_coeff: int = 24, prefix: str = None
 ) -> pd.DataFrame:
     """
     A function that computes Cepstrum Domain features.
@@ -104,9 +102,9 @@ def extract_cepd_features(
         Extract all features
     """
     # use a prefix in feature name
-    if prefix is None or prefix == '':
-        prefix=''
-    elif prefix[-1] != '_':
-        prefix += '_'
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
 
     return cepstrum_coefs(X.T, n_cepstrum_coeff=n_cepstrum_coeff).add_prefix(prefix)

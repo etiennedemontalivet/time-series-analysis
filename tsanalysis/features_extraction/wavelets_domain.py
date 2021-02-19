@@ -211,7 +211,7 @@ def extract_wd_features(
     wavelet_band_cover_ratio: float = 0.5,
     wavelet_types: List[str] = ["db2", "db3"],
     wavelet_dec_level: List[int] = [5, 5],
-    prefix: str=None
+    prefix: str = None,
 ) -> pd.DataFrame:
     """
     A function that computes Wavelets Domain features.
@@ -252,10 +252,10 @@ def extract_wd_features(
         Extract all features
     """
     # use a prefix in feature name
-    if prefix is None or prefix == '':
-        prefix=''
-    elif prefix[-1] != '_':
-        prefix += '_'
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
 
     return pd.concat(
         [

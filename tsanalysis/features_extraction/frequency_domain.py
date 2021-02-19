@@ -211,7 +211,7 @@ def extract_fd_features(
     fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
     fft_filtering_func: Callable = None,
-    prefix: str=None
+    prefix: str = None,
 ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.
@@ -262,10 +262,10 @@ def extract_fd_features(
         Extract all features
     """
     # use a prefix in feature name
-    if prefix is None or prefix == '':
-        prefix=''
-    elif prefix[-1] != '_':
-        prefix += '_'
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
 
     return pd.concat(
         [

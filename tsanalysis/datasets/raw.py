@@ -10,13 +10,13 @@ import pandas as pd
 
 # pylint: disable=no-member
 def make_windows_ts_data(
-    sampling_rate: int=1000,
-    duration: float=0.256,
-    n_events: int=100,
-    id_names: list=None,
-    return_y: bool=True,
-    n_classes: int=3
-    ):
+    sampling_rate: int = 1000,
+    duration: float = 0.256,
+    n_events: int = 100,
+    id_names: list = None,
+    return_y: bool = True,
+    n_classes: int = 3,
+):
     """
     Make a raw dataset of windows extracted from time-series.
 
@@ -47,16 +47,12 @@ def make_windows_ts_data(
         The fake labels with fake filenames as indexes.
 
     """
-    values = np.random.random((n_events, int(sampling_rate*duration)))
+    values = np.random.random((n_events, int(sampling_rate * duration)))
     if id_names is None:
-        id_names = [ 'file_' + str(i) for i in range(n_events)]
+        id_names = ["file_" + str(i) for i in range(n_events)]
     data = pd.DataFrame(data=values, index=id_names)
 
     if return_y is True:
-        y = pd.Series(
-            data=np.random.randint(0,n_classes,n_events),
-            index=data.index
-        )
-        return data, y
-    else:
-        return data
+        y = pd.Series(data=np.random.randint(0, n_classes, n_events), index=data.index)
+
+    return data, y if return_y is True else data

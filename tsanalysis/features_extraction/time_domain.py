@@ -210,10 +210,7 @@ def sample_entropy(X: pd.DataFrame, m: int = 4, eta: float = 0.2) -> pd.Series:
 
 
 def extract_td_features(
-    X: pd.DataFrame,
-    sampen_m: int=2,
-    sampen_eta: float=0.2,
-    prefix: str=None
+    X: pd.DataFrame, sampen_m: int = 2, sampen_eta: float = 0.2, prefix: str = None
 ) -> pd.DataFrame:
     """
     A function that computes Time Domain features.
@@ -280,9 +277,9 @@ def extract_td_features(
     )
 
     # use a prefix in feature name
-    if prefix is None or prefix == '':
-        prefix=''
-    elif prefix[-1] != '_':
-        prefix += '_'
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
 
     return pd.concat(out, axis=1).add_prefix(prefix)

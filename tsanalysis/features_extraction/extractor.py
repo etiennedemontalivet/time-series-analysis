@@ -13,7 +13,7 @@ from tsanalysis.features_extraction.time_domain import extract_td_features
 from tsanalysis.features_extraction.wavelets_domain import extract_wd_features
 from tsanalysis.features_extraction.frequency_domain import extract_fd_features
 
-# pylint: disable=too-many-arguments,dangerous-default-value
+# pylint: disable=too-many-arguments,dangerous-default-value, too-many-locals
 def extract_all_features(
     X: pd.DataFrame,
     fs: int,
@@ -30,7 +30,7 @@ def extract_all_features(
     wavelet_dec_level: List[int] = [5, 5],
     sampen_m: int = 2,
     sampen_eta: float = 0.2,
-    prefix: str=None
+    prefix: str = None,
 ) -> pd.DataFrame:
     """
     A function that computes all features.
@@ -98,10 +98,7 @@ def extract_all_features(
     return pd.concat(
         [
             extract_td_features(
-                X=X,
-                sampen_m=sampen_m,
-                sampen_eta=sampen_eta,
-                prefix=prefix
+                X=X, sampen_m=sampen_m, sampen_eta=sampen_eta, prefix=prefix
             ),
             extract_fd_features(
                 X=X,
@@ -112,12 +109,10 @@ def extract_all_features(
                 fft_max_argmax_skip_coeffs=fft_max_argmax_skip_coeffs,
                 fft_max_argmax_last_coeffs=fft_max_argmax_last_coeffs,
                 fft_filtering_func=fft_filtering_func,
-                prefix=prefix
+                prefix=prefix,
             ),
             extract_cepd_features(
-                X=X,
-                n_cepstrum_coeff=n_cepstrum_coeff,
-                prefix=prefix
+                X=X, n_cepstrum_coeff=n_cepstrum_coeff, prefix=prefix
             ),
             extract_wd_features(
                 X=X,

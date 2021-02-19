@@ -332,11 +332,8 @@ class FeaturesDataset:
         return cls(X, y, name=dataset_name, target_labels=target_labels)
 
     def plot_distribution(
-        self,
-        feature_name: str,
-        title: str=None,
-        bin_size='auto',
-        n_bins: int=20):
+        self, feature_name: str, title: str = None, bin_size="auto", n_bins: int = 20
+    ):
         """
         Plot distribution of a specific feature
 
@@ -368,7 +365,7 @@ class FeaturesDataset:
         hist_data = [self.X[feature_name][self.y == iC] for iC in self.classes_]
 
         # Bin sizes
-        if bin_size == 'auto':
+        if bin_size == "auto":
             bin_size = []
             for iC in self.classes_:
                 X_i = self.X[feature_name][self.y == iC]
@@ -385,9 +382,10 @@ class FeaturesDataset:
         )
         fig.update_xaxes(
             range=[
-                self.X[feature_name].min()-0.1*self.X[feature_name].min(),
-                self.X[feature_name].max()+0.1*self.X[feature_name].max()
-            ])
+                self.X[feature_name].min() - 0.1 * self.X[feature_name].min(),
+                self.X[feature_name].max() + 0.1 * self.X[feature_name].max(),
+            ]
+        )
         fig.update_yaxes(title="probability")
         fig.update_xaxes(title=feature_name)
         fig.update_layout(title=title, title_x=0.5)
