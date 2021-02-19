@@ -87,6 +87,14 @@ def extract_cepd_features(
     pd.DataFrame
         The n_cepstrum_coeff cesptrum coefficients values per signal.
 
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_windows_ts_data
+    >>> data, y = make_windows_ts_data()
+
+    >>> from tsanalysis.features_extraction import extract_cepd_features
+    >>> features = extract_cepd_features(data)
+
     See also
     --------
     extract_fd_features

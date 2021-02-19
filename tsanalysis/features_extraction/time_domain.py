@@ -232,6 +232,14 @@ def extract_td_features(
     pd.DataFrame
         A DataFrame containing the time domain features per time serie.
 
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_windows_ts_data
+    >>> data, y = make_windows_ts_data()
+
+    >>> from tsanalysis.features_extraction import extract_td_features
+    >>> features = extract_td_features(data)
+
     See also
     --------
     extract_cepd_features
