@@ -4,15 +4,24 @@ Data format
 
 Learn how to format the data to use the framework.
 """
+import pandas as pd
+pd.set_option('display.max_columns', 12)
 
-#%%
+#%% 
 # **Your dataset, your choice**
 #
-# For now, there is no model of raw data. Feel free to code your own class to load,
-# save, and analyze your raw data. Our advice here is to start using an *id* (such
-# as a filename) for each event. An event might consist of multiple time-series
-# windows from different sizes depending on sensors (sampling rate, ...).
-#
+# For now, there is no class of raw data. Feel free to code your own class to load,
+# save, and analyze your raw data. Our advice is to save your raw data in an event containing
+# multiple DataFrames, one per sensor, using *ids* for indexes (such as a filename) for each
+# DataFrame. An event might consist of multiple time-series windows from different sizes
+# depending on sensors (sampling rate, ...).
+
+#%% **DataFrame example**
+# 
+# Example of a raw data DataFrame format to use :mod:`tsanalysis.features_extraction`
+from tsanalysis.datasets import make_windows_ts_data
+data, y = make_windows_ts_data()
+data.head()
 
 #%%
 # **Features format**
