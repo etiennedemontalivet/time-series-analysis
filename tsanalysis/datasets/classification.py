@@ -1,6 +1,6 @@
 """
-Datasets
-========
+Features datasets for classification
+========================================
 
 This module defines common datasets to be loaded in the framework specific format.
 """
