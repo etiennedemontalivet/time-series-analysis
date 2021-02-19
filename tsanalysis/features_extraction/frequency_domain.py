@@ -24,11 +24,11 @@ def powerband_single_axis(
     ----------
     X : pd.Series
         Signal to extract the powerbands from.
-    fs : int, optional
+    fs : int, default=1000
         Sample rate in Hz. The default is 1000.
-    n_powerband_bins : int, optional
+    n_powerband_bins : int, default=10
         Number of powerbands to compute. The default is 10.
-    powerband_explicit_freq_names : bool, optional
+    powerband_explicit_freq_names : bool, default=True
         If True, the frequency bands are included in the feature name, else
         a counter is used. The default is True.
 
@@ -65,11 +65,11 @@ def powerband(
     ----------
     X : pd.DataFrame
         Input containing the time series. Shape has to be (n_signals, time)
-    fs : int, optional
+    fs : int, default=1000
         Sample rate in Hz. The default is 1000.
-    n_powerband_bins : int, optional
+    n_powerband_bins : int, default=10
         Number of powerbands to compute. The default is 10.
-    powerband_explicit_freq_names : bool, optional
+    powerband_explicit_freq_names : bool, default=True
         If True, the frequency bands are included in the feature name, else
         a counter is used. The default is True.
 
@@ -106,15 +106,15 @@ def fd_max_argmax_energy_single_axis(
     ----------
     X : pd.Series
         Signal to extract the features from.
-    window : str, optional
+    window : str, default="hann"
         The type of window to use for windowing. The default is "hann".
-    skip_coefs : int, optional
+    skip_coefs : int, default=1
         Number of coefficient to skip for the max/argmax computation. The default is 1.
-    last_coeff : int, optional
+    last_coeff : int, default=None
         The last fft coeff to take into account for the the max/argmax computation.
         If None, no part of the magnitude is removed from the end.
         The default is None.
-    filtering_func : Callable, optional
+    filtering_func : Callable, default=None
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
 
