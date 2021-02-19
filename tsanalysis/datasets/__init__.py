@@ -13,3 +13,4 @@ corresponding sensor's acquisitions, columns being features names.
 """
 
 from tsanalysis.datasets.classification import make_iris_data, make_classification
+from tsanalysis.datasets.raw import make_windows_ts_data
