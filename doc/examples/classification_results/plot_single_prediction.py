@@ -21,7 +21,6 @@ warnings.filterwarnings("ignore", message="numpy.ufunc size changed")
 #
 #       More details in this example about :ref:`sphx_glr_auto_examples_datamodels_plot_data_format.py`
 
-import numpy as np
 import pandas as pd
 from sklearn.ensemble import RandomForestClassifier
 from tsanalysis.datasets import make_iris_data
