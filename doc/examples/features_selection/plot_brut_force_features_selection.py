@@ -55,7 +55,7 @@ def my_objectif(features_list=list):
 
 #%%
 # **Brut force features selection**
-from tsanalysis.features_selection.brut_force import brut_force_features_selection
+from tsanalysis.features_selection import brut_force_features_selection
 df = brut_force_features_selection(
     features_list=X_df.columns,
     objectif=my_objectif,
