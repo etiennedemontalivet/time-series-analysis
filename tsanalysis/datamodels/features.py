@@ -73,7 +73,7 @@ class FeaturesDataset:
     >>> from tsanalysis.datasets import make_iris_data
     >>> X_df, y_df = make_iris_data()
 
-    >>> from tsanalysis.datamodels.features import FeaturesDataset
+    >>> from tsanalysis.datamodels import FeaturesDataset
     >>> fds = FeaturesDataset(
     >>>     X=X_df,
     >>>     y=y_df,
@@ -83,20 +83,6 @@ class FeaturesDataset:
     >>>        1:'versicolor',
     >>>        2:'virginica'
     >>>     })
-
-    >>> fds.dump()
-
-    >>> fds_bis = FeaturesDataset.load('iris_demo')
-
-    >>> fds_bis.target_labels_
-
-    >>> fds_bis.classes_
-
-    >>> fds_bis.index
-
-    >>> fds_bis.name
-
-    >>> fds_bis.plot_distribution(feature_name='sepal length (cm)')
 
     """
 
@@ -347,7 +333,7 @@ class FeaturesDataset:
 
         bin_size : list of float or float or str, default='auto'
             Size of histogram bins in absolute value. If auto, bin sizes are automatically
-            comptued for each class. The default is auto.
+            computed for each class. The default is auto.
 
         n_bins : int, default=20
             If ``bin_size`` is 'auto', number of bins to use per class. The default
@@ -355,7 +341,8 @@ class FeaturesDataset:
 
         Returns
         -------
-        None
+        fig
+            The plotly figure
 
         """
         if title is None:
@@ -408,6 +395,11 @@ def features_concat(features: List[FeaturesDataset], name: str = None):
     -------
     FeaturesDataset
         A features dataset containing the input list of FeaturesDataset.
+
+    Notes
+    -----
+    The features of each features dataset must be the same. If any X/y index is
+    the same between 2 features datasets, duplicates are removed.
 
     """
     if name is None:
