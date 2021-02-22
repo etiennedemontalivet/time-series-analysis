@@ -7,7 +7,6 @@ Learn how to do features selection using a genetic selection approach.
 
 #%%
 # **Create fake data**
-import numpy as np
 import pandas as pd
 from tsanalysis.datasets import make_classification
 X_df, y_df = make_classification(n_samples=1000, n_features=100, n_informative=10, random_state=42)

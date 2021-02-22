@@ -1,5 +1,6 @@
 """
-#TODO: This file assumes that the developer uses a Linux environment and Pip. It should be updated to work with Conda and Windows.
+#TODO: This file assumes that the developer uses a Linux environment and Pip.
+# It should be updated to work with Conda and Windows.
 This is an equivalent of Makefile that works both on Linux and Windows.
 Check invoke documentation on http://www.pyinvoke.org.
 
@@ -10,8 +11,6 @@ It can be used to:
 - serve documentation
 """
 from invoke import task
-import subprocess
-import webbrowser
 
 @task
 def clean(c, docs=True, extra=''):
