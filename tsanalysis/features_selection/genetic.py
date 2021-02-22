@@ -39,9 +39,10 @@ def genetic_features_selection(
 
     objectif : Callable
         The objectif to minimize. This must have ``features_list`` as argument.
-        It must return a dictionary with at least a 'score' key corresponding
-        to the score value of one objectif call given a features_list.
-        The could be for instance a cross-validation.
+        It must return a dictionary with at least a ``score`` key corresponding
+        to the score value of one objectif call given a features_list. Any
+        additional key is saved in the optimization history. It could be for
+        instance a cross-validation.
 
     n_population : int
         The size of the genetic population.
@@ -51,6 +52,7 @@ def genetic_features_selection(
 
     genetic_params : dict
         A dictionary containing the following genetic parameters:
+
         - ``selection_ratio``: population ratio of selection for cross-over
         - ``mutation_features_ratio``: ratio of features to mutate
         - ``mutation_population_ratio``: population ratio to mutate
@@ -64,9 +66,11 @@ def genetic_features_selection(
     params_updater : Callable, default=None
         A genetic parameters updater. If not None, this must be a Callable with
         three arguments:
+
         - ``epoch``: the current epoch number
         - ``genetic_params``: the current genetic parameters
         - ``objectif_output``: the output dictionary of the objectif function
+
         This could be used to update the genetic paramters in specific contexts.
         It must return a ``genetic_params`` dictionary.
         The default is None.
