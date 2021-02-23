@@ -597,7 +597,7 @@ class CrossValidationResults:
                 )
             )
         fig.update_layout(
-            title="Metrics",
+            title=figtitle,
             xaxis_title="Trial no",
             yaxis_title="value",
         )
