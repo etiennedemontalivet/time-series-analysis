@@ -588,7 +588,7 @@ class CrossValidationResults:
 
         """
         fig = go.Figure()
-        for metric in ['matthews_corrcoef', 'accuracy', 'f1_weighted', 'f1_micro']:
+        for metric in ["matthews_corrcoef", "accuracy", "f1_weighted", "f1_micro"]:
             fig.add_trace(
                 go.Scatter(
                     x=self.df.index,
@@ -598,7 +598,7 @@ class CrossValidationResults:
             )
         fig.update_layout(
             title="Metrics",
-            xaxis_title='Trial no',
-            yaxis_title='value',
+            xaxis_title="Trial no",
+            yaxis_title="value",
         )
         return fig
