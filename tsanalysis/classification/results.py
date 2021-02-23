@@ -11,6 +11,7 @@ import itertools
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from sklearn import metrics
 
 
@@ -575,10 +576,6 @@ class CrossValidationResults:
         """
         Plot metrics for each train/val step during cross-validation
 
-        .. note::
-            You can use different pandas backends, such as plotly:
-            `pd.options.plotting.backend = 'plotly'`
-
         Parameters
         ----------
         figtitle : str, optional
@@ -586,11 +583,22 @@ class CrossValidationResults:
 
         Returns
         -------
-        None
+        fig
+            The plotly figure
 
         """
-        fig = self.df[
-            ["accuracy", "matthews_corrcoef", "f1_weighted", "f1_micro"]
-        ].plot(title=figtitle)
-        if pd.options.plotting.backend == "plotly":
-            fig.show()
+        fig = go.Figure()
+        for metric in ['matthews_corrcoef', 'accuracy', 'f1_weighted', 'f1_micro']:
+            fig.add_trace(
+                go.Scatter(
+                    x=self.df.index,
+                    y=self.df[metric],
+                    name=metric,
+                )
+            )
+        fig.update_layout(
+            title="Metrics",
+            xaxis_title='Trial no',
+            yaxis_title='value',
+        )
+        return fig
