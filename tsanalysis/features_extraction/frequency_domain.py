@@ -18,17 +18,17 @@ def powerband_single_axis(
 ) -> pd.Series:
     """
     Compute power band coefficients of a single Series using Welch method.
-    See https://en.wikipedia.org/wiki/Welch%27s_method
+    See `<here https://en.wikipedia.org/wiki/Welch%27s_method>__` for more details.
 
     Parameters
     ----------
     X : pd.Series
         Signal to extract the powerbands from.
-    fs : int, optional
+    fs : int, default=1000
         Sample rate in Hz. The default is 1000.
-    n_powerband_bins : int, optional
+    n_powerband_bins : int, default=10
         Number of powerbands to compute. The default is 10.
-    powerband_explicit_freq_names : bool, optional
+    powerband_explicit_freq_names : bool, default=True
         If True, the frequency bands are included in the feature name, else
         a counter is used. The default is True.
 
@@ -65,11 +65,11 @@ def powerband(
     ----------
     X : pd.DataFrame
         Input containing the time series. Shape has to be (n_signals, time)
-    fs : int, optional
+    fs : int, default=1000
         Sample rate in Hz. The default is 1000.
-    n_powerband_bins : int, optional
+    n_powerband_bins : int, default=10
         Number of powerbands to compute. The default is 10.
-    powerband_explicit_freq_names : bool, optional
+    powerband_explicit_freq_names : bool, default=True
         If True, the frequency bands are included in the feature name, else
         a counter is used. The default is True.
 
@@ -106,15 +106,15 @@ def fd_max_argmax_energy_single_axis(
     ----------
     X : pd.Series
         Signal to extract the features from.
-    window : str, optional
+    window : str, default="hann"
         The type of window to use for windowing. The default is "hann".
-    skip_coefs : int, optional
+    skip_coefs : int, default=1
         Number of coefficient to skip for the max/argmax computation. The default is 1.
-    last_coeff : int, optional
+    last_coeff : int, default=None
         The last fft coeff to take into account for the the max/argmax computation.
         If None, no part of the magnitude is removed from the end.
         The default is None.
-    filtering_func : Callable, optional
+    filtering_func : Callable, default=None
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
 
@@ -211,6 +211,7 @@ def extract_fd_features(
     fft_max_argmax_skip_coeffs: int = 1,
     fft_max_argmax_last_coeffs: int = None,
     fft_filtering_func: Callable = None,
+    prefix: str = None,
 ) -> pd.DataFrame:
     """
     A function that computes Frequency Domain features.
@@ -237,11 +238,22 @@ def extract_fd_features(
     fft_filtering_func : Callable, default=None
         A filter on the magnitude could be applied before max/argmax computation.
         The default is None.
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
     pd.DataFrame
         A DataFrame containing the frequency features per time serie.
+
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_windows_ts_data
+    >>> data, y = make_windows_ts_data()
+
+    >>> from tsanalysis.features_extraction import extract_fd_features
+    >>> features = extract_fd_features(data, fs=1000)
 
     See also
     --------
@@ -257,6 +269,12 @@ def extract_fd_features(
     extract_all_features
         Extract all features
     """
+    # use a prefix in feature name
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
+
     return pd.concat(
         [
             powerband(
@@ -274,4 +292,4 @@ def extract_fd_features(
             ),
         ],
         axis=1,
-    )
+    ).add_prefix(prefix)

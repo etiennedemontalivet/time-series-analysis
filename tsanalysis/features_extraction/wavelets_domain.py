@@ -211,6 +211,7 @@ def extract_wd_features(
     wavelet_band_cover_ratio: float = 0.5,
     wavelet_types: List[str] = ["db2", "db3"],
     wavelet_dec_level: List[int] = [5, 5],
+    prefix: str = None,
 ) -> pd.DataFrame:
     """
     A function that computes Wavelets Domain features.
@@ -227,11 +228,22 @@ def extract_wd_features(
         Mother wavelet types (cf PyWavelet implementation). The default is ["db2", "db3"].
     wavelet_dec_level : list of int, default=[5,5]
         Decomposition level. The default is [5, 5].
+    prefix : str, default=None
+        A prefix to add to features name. If None, no prefix is added. The
+        default is None.
 
     Returns
     -------
     pd.DataFrame
         A DataFrame containing the wavelet features per time serie.
+
+    Examples
+    --------
+    >>> from tsanalysis.datasets import make_windows_ts_data
+    >>> data, y = make_windows_ts_data()
+
+    >>> from tsanalysis.features_extraction import extract_wd_features
+    >>> features = extract_wd_features(data)
 
     See also
     --------
@@ -247,6 +259,12 @@ def extract_wd_features(
     extract_all_features
         Extract all features
     """
+    # use a prefix in feature name
+    if prefix is None or prefix == "":
+        prefix = ""
+    elif prefix[-1] != "_":
+        prefix += "_"
+
     return pd.concat(
         [
             wavelets_acc_coeffs(X),
@@ -259,4 +277,4 @@ def extract_wd_features(
             ),
         ],
         axis=1,
-    )
+    ).add_prefix(prefix)

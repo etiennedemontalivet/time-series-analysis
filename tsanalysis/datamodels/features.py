@@ -73,7 +73,7 @@ class FeaturesDataset:
     >>> from tsanalysis.datasets import make_iris_data
     >>> X_df, y_df = make_iris_data()
 
-    >>> from tsanalysis.datamodels.features import FeaturesDataset
+    >>> from tsanalysis.datamodels import FeaturesDataset
     >>> fds = FeaturesDataset(
     >>>     X=X_df,
     >>>     y=y_df,
@@ -83,20 +83,6 @@ class FeaturesDataset:
     >>>        1:'versicolor',
     >>>        2:'virginica'
     >>>     })
-
-    >>> fds.dump()
-
-    >>> fds_bis = FeaturesDataset.load('iris_demo')
-
-    >>> fds_bis.target_labels_
-
-    >>> fds_bis.classes_
-
-    >>> fds_bis.index
-
-    >>> fds_bis.name
-
-    >>> fds_bis.plot_distribution(feature_name='sepal length (cm)')
 
     """
 
@@ -331,7 +317,9 @@ class FeaturesDataset:
 
         return cls(X, y, name=dataset_name, target_labels=target_labels)
 
-    def plot_distribution(self, feature_name: str, title: str = None, bin_size=1.0):
+    def plot_distribution(
+        self, feature_name: str, title: str = None, bin_size="auto", n_bins: int = 20
+    ):
         """
         Plot distribution of a specific feature
 
@@ -343,12 +331,18 @@ class FeaturesDataset:
         title : str, default=None
             Figure title. If None, the feature name is used. The default is None.
 
-        bin_size : list of float or float, default=1.
-            Size of histogram bins. The default is 1..
+        bin_size : list of float or float or str, default='auto'
+            Size of histogram bins in absolute value. If auto, bin sizes are automatically
+            computed for each class. The default is auto.
+
+        n_bins : int, default=20
+            If ``bin_size`` is 'auto', number of bins to use per class. The default
+            is 20.
 
         Returns
         -------
-        None
+        fig
+            The plotly figure
 
         """
         if title is None:
@@ -356,6 +350,14 @@ class FeaturesDataset:
 
         # Group data together
         hist_data = [self.X[feature_name][self.y == iC] for iC in self.classes_]
+
+        # Bin sizes
+        if bin_size == "auto":
+            bin_size = []
+            for iC in self.classes_:
+                X_i = self.X[feature_name][self.y == iC]
+                bin_size.append((X_i.max() - X_i.min()) / n_bins)
+
         if self.target_labels_ is not None:
             group_labels = [self.target_labels_[iC] for iC in self.classes_]
         else:
@@ -365,15 +367,23 @@ class FeaturesDataset:
         fig = ff.create_distplot(
             hist_data, group_labels, bin_size=bin_size, histnorm="probability"
         )
+        fig.update_xaxes(
+            range=[
+                self.X[feature_name].min() - 0.1 * self.X[feature_name].min(),
+                self.X[feature_name].max() + 0.1 * self.X[feature_name].max(),
+            ]
+        )
+        fig.update_yaxes(title="probability")
+        fig.update_xaxes(title=feature_name)
         fig.update_layout(title=title, title_x=0.5)
-        fig.show()
+        return fig
 
 
 def features_concat(features: List[FeaturesDataset], name: str = None):
     """Concatenate a list of :class:`FeaturesDataset`
 
-    Prameters
-    ---------
+    Parameters
+    ----------
     features : list of FeaturesDataset
         The FeaturesDataset list to concatenate
 
@@ -385,6 +395,11 @@ def features_concat(features: List[FeaturesDataset], name: str = None):
     -------
     FeaturesDataset
         A features dataset containing the input list of FeaturesDataset.
+
+    Notes
+    -----
+    The features of each features dataset must be the same. If any X/y index is
+    the same between 2 features datasets, duplicates are removed.
 
     """
     if name is None:

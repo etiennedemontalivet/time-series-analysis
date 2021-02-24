@@ -25,6 +25,12 @@ if errorlevel 9009 (
 	exit /b 1
 )
 
+if "%1" == "clean" (
+	echo.Manual cleaning...
+	rd /s /q "%SOURCEDIR%/auto_examples/"
+	rd /s /q "%SOURCEDIR%/modules/generated/"
+)
+
 %SPHINXBUILD% -M %1 %SOURCEDIR% %BUILDDIR% %SPHINXOPTS% %O%
 goto end
 

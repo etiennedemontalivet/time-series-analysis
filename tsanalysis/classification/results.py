@@ -11,6 +11,7 @@ import itertools
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
+import plotly.graph_objects as go
 from sklearn import metrics
 
 
@@ -27,7 +28,7 @@ class ClassificationResults:
     y_pred : pd.Series
         Estimated targets as returned by a classifier.
 
-    labels : array-like of shape (n_classes), default=None
+    labels : array-like of shape (`n_classes_`), default=None
         List of labels to index the matrix. This may be used to reorder or select
         a subset of labels. If None is given, those that appear at least once in
         y_true or y_pred are used in sorted order.
@@ -38,7 +39,7 @@ class ClassificationResults:
     n_classes_ : int
         number of classes
 
-    classes_ : ndarray of shape (n_classes_,)
+    classes_ : ndarray of shape (`n_classes_`)
         class labels
 
     accurracy_ : float
@@ -158,23 +159,51 @@ class ClassificationResults:
     @property
     def metrics(self) -> Dict[str, float]:
         """
-        Returns a dictionary of all metrics for convenience
+        Returns a dictionary of all metrics for convenience.
+
+        Returns
+        -------
+        dict
+            A dictionary with the following keys:
+
+            - ``matthews_corrcoef``: matthew correlation coefficient. See here for more details.
+            - ``accuracy``: accuracy. See here for more details.
+            - ``f1_weighted``: the f1 weighted score. See here for more details.
+            - ``f1_micro``: the f1 micro score. See here for more details.
+            - ``tp``: true positives number.
+            - ``fp``: false positives number.
+            - ``confusion_matrix``: the confusion matrix.
+
+        See also
+        --------
+        dict
+
         """
         _metrics = {
             "matthews_corrcoef": self.matthews_corrcoef_,
             "accuracy": self.accuracy_,
             "f1_weighted": self.f1_weighted_,
             "f1_micro": self.f1_micro_,
-            "tp": self.tp_,
-            "fp": self.fp_,
-            "confusion_matrix": self.confusion_matrix_,
+            "tp": int(self.tp_),
+            "fp": int(self.fp_),
+            "confusion_matrix": self.confusion_matrix_.tolist(),
         }
         return _metrics
 
     @property
     def misclassified(self) -> pd.Index:
         """
-        Returns the index of misclassified
+        Classification misclassifieds.
+
+        Returns
+        -------
+        pd.Index
+            Indexes of misclassifieds.
+
+        See also
+        --------
+        dict
+
         """
         y_misclassified = self.y_true[self.y_true != self.y_pred]
         return y_misclassified.index
@@ -235,29 +264,38 @@ class ClassificationResults:
                 color="white" if cm[i, j] > thresh else "black",
             )
 
-        plt.tight_layout()
         plt.ylabel("True label")
         plt.xlabel(
             "Predicted label\nf1_weighted={:0.2f}; mcc={:0.2f}".format(
                 self.f1_weighted_, self.matthews_corrcoef_
             )
         )
+        plt.tight_layout()
         plt.show()
 
     def __repr__(self) -> str:
         return f"{self.__class__.__name__}({self.__str__()})"
 
     def __str__(self) -> str:
-        return str(self.metrics)
+        return str(self.dict())
 
     def dict(self):
         """
         Returns a dict representation of the results
+
+        Returns
+        -------
+        dict
+            A dictionary with the following keys:
+
+            - ``metrics``: classification :meth:`metrics`
+            - ``predictions``: a dictionary containing ``y_true`` and ``y_pred`` results.
+            - ``misclassified``: classification :meth:`misclassified`
         """
         data = {}
         data["metrics"] = self.metrics
         data["predictions"] = {"y_true": self.y_true, "y_pred": self.y_pred}
-        data["misclassifications"] = self.misclassified
+        data["misclassified"] = self.misclassified
         return data
 
 
@@ -288,7 +326,7 @@ class CrossValidationResults:
     metrics : dict
         Aggregated metrics of CV.
 
-    confusion_matrix_mean : ndarray of shape (n_classes, n_classes)
+    confusion_matrix_mean : ndarray of shape (`n_classes_`, `n_classes_`)
         Confusion matrix whose i-th row and j-th column entry indicates the
         number of samples with true label being i-th class and prediced label
         being j-th class.
@@ -525,22 +563,18 @@ class CrossValidationResults:
                 color="white" if cm[i, j] > thresh else "black",
             )
 
-        plt.tight_layout()
         plt.ylabel("True label")
         plt.xlabel(
             "Predicted label\nf1_weighted={:0.2f}; mcc={:0.2f}".format(
                 self.mean["mean_f1_weighted"], self.mean["mean_matthews_corrcoef"]
             )
         )
+        plt.tight_layout()
         plt.show()
 
     def plot_metrics(self, figtitle="Classification metrics"):
         """
         Plot metrics for each train/val step during cross-validation
-
-        .. note::
-            You can use different pandas backends, such as plotly:
-            `pd.options.plotting.backend = 'plotly'`
 
         Parameters
         ----------
@@ -549,11 +583,22 @@ class CrossValidationResults:
 
         Returns
         -------
-        None
+        fig
+            The plotly figure
 
         """
-        fig = self.df[
-            ["accuracy", "matthews_corrcoef", "f1_weighted", "f1_micro"]
-        ].plot(title=figtitle)
-        if pd.options.plotting.backend == "plotly":
-            fig.show()
+        fig = go.Figure()
+        for metric in ["matthews_corrcoef", "accuracy", "f1_weighted", "f1_micro"]:
+            fig.add_trace(
+                go.Scatter(
+                    x=self.df.index,
+                    y=self.df[metric],
+                    name=metric,
+                )
+            )
+        fig.update_layout(
+            title=figtitle,
+            xaxis_title="Trial no",
+            yaxis_title="value",
+        )
+        return fig
