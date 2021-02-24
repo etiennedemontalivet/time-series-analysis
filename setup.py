@@ -93,11 +93,14 @@ setup(
         'matplotlib>=3.1.2',
         'scikit-optimize',
         'plotly>=4.14.3',
-        'imblearn==0.0',
+        'imblearn>=0.0',
         'autopep8>=1.5',
         'jupytext>=1.5.0',
         'jupyterlab',
         'pyarrow>=2.0',
+        'numpydoc>=1.1',
+        'sphinx_gallery>=0.8',
+        'sphinx-prompt>=1.3',
     ],  # Optional
     # List additional groups of dependencies here (e.g. development
     # dependencies). Users will be able to install these using the "extras"
@@ -109,12 +112,12 @@ setup(
     # projects.
     extras_require={  # Optional
         'dev': [
-            'pylint'
-            'black',
+            'pylint>=2.6'
+            'black>=20.8',
             'sphinx>=2.2',
             'invoke>=1.3',
-            'pytest',
-            'pytest-coverage',
+            'pytest>=6.1',
+            'pytest-coverage>=0.0',
         ],
     },
     # If there are data files included in your packages that need to be
